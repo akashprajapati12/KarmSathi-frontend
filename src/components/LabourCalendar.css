@@ -1,0 +1,236 @@
+.labour-calendar-wrapper {
+    margin-top: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.calendar-day.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.calendar-day:not(.empty):hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.calendar-day .day-number {
+    font-size: 1.1rem;
+    font-weight: 500;
+    z-index: 2;
+}
+
+.calendar-day.today {
+    border: 2px solid var(--accent-primary);
+}
+
+/* Color Coding defined by User Request */
+/* Green = Present, Red = Absent, Yellow = Half Day, Sky Blue = Overtime */
+
+.calendar-day.status-present {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+    color: #4ade80;
+}
+
+.calendar-day.status-absent {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #f87171;
+}
+
+.calendar-day.status-half-day {
+    background: rgba(234, 179, 8, 0.2);
+    border-color: rgba(234, 179, 8, 0.5);
+    color: #facc15;
+}
+
+.calendar-day.status-overtime {
+    background: rgba(14, 165, 233, 0.2);
+    border-color: rgba(14, 165, 233, 0.5);
+    color: #38bdf8;
+}
+
+/* Bottom Stats Area */
+.calendar-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1.5rem;
+}
+
+.stat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.stat-pill .stat-count {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.stat-pill .stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-pill.present {
+    color: #4ade80;
+    border-bottom: 3px solid #4ade80;
+}
+
+.stat-pill.absent {
+    color: #f87171;
+    border-bottom: 3px solid #f87171;
+}
+
+.stat-pill.half-day {
+    color: #facc15;
+    border-bottom: 3px solid #facc15;
+}
+
+.stat-pill.overtime {
+    color: #38bdf8;
+    border-bottom: 3px solid #38bdf8;
+}
+
+/* Modal overCalendar */
+.attendance-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attendance-modal {
+    width: 90%;
+    maxWidth: 400px;
+    background: var(--bg-secondary);
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.attendance-modal .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.attendance-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.btn-present {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.btn-present:hover:not(:disabled) {
+    background: rgba(34, 197, 94, 0.4);
+}
+
+.btn-absent {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.btn-absent:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.4);
+}
+
+.btn-half {
+    background: rgba(234, 179, 8, 0.2);
+    color: #facc15;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.btn-half:hover:not(:disabled) {
+    background: rgba(234, 179, 8, 0.4);
+}
+
+.btn-overtime {
+    background: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+.btn-overtime:hover:not(:disabled) {
+    background: rgba(14, 165, 233, 0.4);
+}
+
+.calendar-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    border-radius: inherit;
+}
+
+@media (max-width: 768px) {
+    .calendar-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

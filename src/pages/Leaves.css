@@ -1,0 +1,55 @@
+.leaves-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.leave-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.leave-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Base Dropdown Fixes */
+.dropdown-fix select option {
+    background-color: var(--bg-primary);
+    /* Ensure dropdown options match dark theme */
+    color: var(--text-primary);
+}
+
+.dropdown-fix select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Reusing Status Badge base but adding specific Leave colors */
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+    min-width: 50px;
+}
+
+.status-pending {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.status-approved {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.status-denied {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}

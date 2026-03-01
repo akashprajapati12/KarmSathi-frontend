@@ -1,0 +1,46 @@
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
+
+const authApi = axios.create({
+    baseURL: API_URL
+});
+
+// Add a request interceptor to add the token to requests
+authApi.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+export const registerUser = async (userData) => {
+    const response = await authApi.post('/auth/register', userData);
+    return response.data;
+};
+
+export const loginUser = async (userData) => {
+    const response = await authApi.post('/auth/login', userData);
+    return response.data;
+};
+
+export const getUserDashboard = async () => {
+    const response = await authApi.get('/user/dashboard');
+    return response.data;
+};
+
+export const updateUserAccount = async (userData) => {
+    const response = await authApi.put('/user/account', userData);
+    return response.data;
+};
+
+export const deleteUserAccount = async () => {
+    const response = await authApi.delete('/user/account');
+    return response.data;
+};
