@@ -12,6 +12,8 @@ const Navbar = () => {
     const [editForm, setEditForm] = useState({ name: '', username: '', email: '', password: '' });
     const [isUpdating, setIsUpdating] = useState(false);
     const [headerError, setHeaderError] = useState('');
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [isInstallable, setIsInstallable] = useState(false);
 
     const { user, logout, updateUserState } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -27,6 +29,42 @@ const Navbar = () => {
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            setDeferredPrompt(e);
+            // Update UI notify the user they can install the PWA
+            setIsInstallable(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        // Optionally, hide the button when the app is successfully installed
+        window.addEventListener('appinstalled', () => {
+            setIsInstallable(false);
+            setDeferredPrompt(null);
+        });
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
+    }, []);
+
+    const handleInstallApp = async () => {
+        if (!deferredPrompt) return;
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setIsInstallable(false);
+        }
+        // We no longer need the prompt. Clear it up.
+        setDeferredPrompt(null);
     };
 
     const toggleSidebar = () => {
@@ -93,7 +131,17 @@ const Navbar = () => {
                     </Link>
                 </div>
 
-                <div className="navbar-right" style={{ position: 'relative' }} ref={profileDropdownRef}>
+                <div className="navbar-right" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '15px' }} ref={profileDropdownRef}>
+                    {isInstallable && (
+                        <button
+                            className="btn btn-primary animate-fade-in"
+                            onClick={handleInstallApp}
+                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                        >
+                            📱 Download App
+                        </button>
+                    )}
+
                     <div
                         style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}
                         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
