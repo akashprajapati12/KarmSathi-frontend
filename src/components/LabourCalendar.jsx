@@ -89,9 +89,9 @@ const LabourCalendar = ({ labourId }) => {
     return (
         <div className="labour-calendar-wrapper">
             <div className="calendar-header glass-panel">
-                <button className="btn" style={{ width: 'auto', padding: '0.5rem 1rem' }} onClick={prevMonth}>&larr; Prev</button>
+                <button className="nav-arrow-btn" onClick={prevMonth}>&lt;</button>
                 <h3 style={{ margin: 0 }}>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h3>
-                <button className="btn" style={{ width: 'auto', padding: '0.5rem 1rem' }} onClick={nextMonth}>Next &rarr;</button>
+                <button className="nav-arrow-btn" onClick={nextMonth}>&gt;</button>
             </div>
 
             <div className="glass-panel" style={{ padding: '1.5rem', marginTop: '1rem', position: 'relative' }}>
