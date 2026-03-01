@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/salaries';
+import API_BASE_URL from './config';
+const API_URL = `${API_BASE_URL}/salaries`;
 
 // Helper to get Auth Token
 const getAuthHeaders = () => {
