@@ -136,9 +136,10 @@ const Navbar = () => {
                         <button
                             className="btn btn-primary animate-fade-in"
                             onClick={handleInstallApp}
-                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                            title="Download App"
+                            style={{ width: '40px', height: '40px', padding: '0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}
                         >
-                            📱 Download App
+                            📥
                         </button>
                     )}
 
