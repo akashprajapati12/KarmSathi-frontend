@@ -22,26 +22,26 @@ authApi.interceptors.request.use(
 );
 
 export const registerUser = async (userData) => {
-    const response = await authApi.post('/auth/register', userData);
+    const response = await authApi.post('/api/auth/register', userData);
     return response.data;
 };
 
 export const loginUser = async (userData) => {
-    const response = await authApi.post('/auth/login', userData);
+    const response = await authApi.post('/api/auth/login', userData);
     return response.data;
 };
 
 export const getUserDashboard = async () => {
-    const response = await authApi.get('/user/dashboard');
+    const response = await authApi.get('/api/user/dashboard');
     return response.data;
 };
 
 export const updateUserAccount = async (userData) => {
-    const response = await authApi.put('/user/account', userData);
+    const response = await authApi.put('/api/user/account', userData);
     return response.data;
 };
 
 export const deleteUserAccount = async () => {
-    const response = await authApi.delete('/user/account');
+    const response = await authApi.delete('/api/user/account');
     return response.data;
 };

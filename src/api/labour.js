@@ -23,43 +23,43 @@ authApi.interceptors.request.use(
 // --- Labour Endpoints ---
 
 export const getLabours = async () => {
-    const response = await authApi.get('/labours');
+    const response = await authApi.get('/api/labours');
     return response.data;
 };
 
 export const createLabour = async (labourData) => {
-    const response = await authApi.post('/labours', labourData);
+    const response = await authApi.post('/api/labours', labourData);
     return response.data;
 };
 
 export const getLabourDetails = async (id) => {
-    const response = await authApi.get(`/labours/${id}`);
+    const response = await authApi.get(`/api/labours/${id}`);
     return response.data;
 };
 
 export const updateLabour = async (id, labourData) => {
-    const response = await authApi.put(`/labours/${id}`, labourData);
+    const response = await authApi.put(`/api/labours/${id}`, labourData);
     return response.data;
 };
 
 export const deleteLabour = async (id) => {
-    const response = await authApi.delete(`/labours/${id}`);
+    const response = await authApi.delete(`/api/labours/${id}`);
     return response.data;
 };
 
 // --- Attendance Endpoints ---
 
 export const getDailyAttendance = async (dateStr) => {
-    const response = await authApi.get(`/attendance/daily/${dateStr}`);
+    const response = await authApi.get(`/api/attendance/daily/${dateStr}`);
     return response.data;
 };
 
 export const getMonthlyAttendance = async (labourId, year, month) => {
-    const response = await authApi.get(`/attendance/summary/${labourId}/${year}/${month}`);
+    const response = await authApi.get(`/api/attendance/summary/${labourId}/${year}/${month}`);
     return response.data;
 };
 
 export const markAttendance = async (attendanceData) => {
-    const response = await authApi.post('/attendance', attendanceData);
+    const response = await authApi.post('/api/attendance', attendanceData);
     return response.data;
 };
