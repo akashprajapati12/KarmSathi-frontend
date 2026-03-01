@@ -122,7 +122,7 @@ const Dashboard = () => {
                     <p className="text-secondary" style={{ marginBottom: '1.5rem', lineHeight: '1.5', flex: 1 }}>
                         Register new labor profiles including skills, assigned site, and contact details.
                     </p>
-                    <button onClick={() => navigate('/labours', { state: { openAddModal: true } })} className="btn" style={{ width: 'auto', padding: '0.6rem 1.2rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid var(--glass-border)' }}>Register Worker ➔</button>
+                    <button onClick={() => navigate('/labours', { state: { openAddModal: true } })} className="btn btn-success" style={{ width: 'auto', padding: '0.6rem 1.2rem' }}>Register Worker ➔</button>
                 </div>
 
             </div>

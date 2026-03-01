@@ -33,7 +33,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s ease;
     position: relative;
 }
@@ -44,10 +44,7 @@
     cursor: default;
 }
 
-.calendar-day:not(.empty):hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-}
+
 
 .calendar-day .day-number {
     font-size: 1.1rem;
@@ -154,7 +151,7 @@
 
 .attendance-modal {
     width: 90%;
-    maxWidth: 400px;
+    max-width: 400px;
     background: var(--bg-secondary);
     padding: 2rem;
     border: 1px solid rgba(255, 255, 255, 0.1);

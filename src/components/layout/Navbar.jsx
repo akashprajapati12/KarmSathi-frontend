@@ -16,6 +16,7 @@ const Navbar = () => {
     const { user, logout, updateUserState } = useContext(AuthContext);
     const navigate = useNavigate();
     const sidebarRef = useRef();
+    const profileDropdownRef = useRef();
 
     useEffect(() => {
         if (user) {
@@ -61,11 +62,14 @@ const Navbar = () => {
         }
     };
 
-    // Close sidebar when clicking outside
+    // Close sidebar and profile dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
                 setIsSidebarOpen(false);
+            }
+            if (isProfileDropdownOpen && profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+                setIsProfileDropdownOpen(false);
             }
         };
 
@@ -73,7 +77,7 @@ const Navbar = () => {
         return () => {
             document.addEventListener('mousedown', handleClickOutside);
         };
-    }, [isSidebarOpen]);
+    }, [isSidebarOpen, isProfileDropdownOpen]);
 
     return (
         <>
@@ -89,7 +93,7 @@ const Navbar = () => {
                     </Link>
                 </div>
 
-                <div className="navbar-right" style={{ position: 'relative' }}>
+                <div className="navbar-right" style={{ position: 'relative' }} ref={profileDropdownRef}>
                     <div
                         style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}
                         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -119,16 +123,18 @@ const Navbar = () => {
                             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                 <li>
                                     <button
-                                        className="dropdown-item-btn"
+                                        className="btn"
                                         onClick={() => { setIsProfileDropdownOpen(false); setIsEditModalOpen(true); }}
+                                        style={{ width: '100%', padding: '0.6rem 1rem', background: 'var(--accent-primary)', color: 'white', marginBottom: '0.5rem', border: 'none', justifyContent: 'flex-start' }}
                                     >
                                         ✏️ Edit Account Info
                                     </button>
                                 </li>
                                 <li>
                                     <button
-                                        className="dropdown-item-btn text-danger"
+                                        className="btn"
                                         onClick={handleDeleteAccount}
+                                        style={{ width: '100%', padding: '0.6rem 1rem', background: 'var(--error)', color: 'white', border: 'none', justifyContent: 'flex-start' }}
                                     >
                                         🗑️ Delete Account
                                     </button>

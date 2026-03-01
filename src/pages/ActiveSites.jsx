@@ -177,41 +177,76 @@ const ActiveSites = () => {
                     </button>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                    {sites.map(site => (
-                        <div key={site._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s', cursor: 'pointer' }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                                <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--accent-primary)' }}>{site.name}</h3>
-                                <div style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                    {site.assignedWorkers?.length || 0} Workers
+                <>
+                    {/* Active Sites Grid */}
+                    {sites.filter(site => site.status !== 'Completed').length > 0 ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                            {sites.filter(site => site.status !== 'Completed').map(site => (
+                                <div key={site._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s', cursor: 'pointer' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--accent-primary)' }}>{site.name}</h3>
+                                        <div style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                            {site.assignedWorkers?.length || 0} Workers
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, marginBottom: '1rem' }}>
+                                        <span style={{ color: 'var(--text-secondary)' }}>📍</span>
+                                        <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                                            {site.address}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                                        <div><strong>Started:</strong> {new Date(site.startDate || site.createdAt).toLocaleDateString()}</div>
+                                        <div style={{ color: '#d97706', fontWeight: 'bold' }}>⚡ Active</div>
+                                    </div>
+                                    <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <span className="text-accent" style={{ fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }} onClick={() => handleOpenDetails(site)}>Manage ➔</span>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, marginBottom: '1rem' }}>
-                                <span style={{ color: 'var(--text-secondary)' }}>📍</span>
-                                <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
-                                    {site.address}
-                                </p>
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                                <div><strong>Started:</strong> {new Date(site.startDate || site.createdAt).toLocaleDateString()}</div>
-                                {site.status === 'Completed' ? (
-                                    <div style={{ color: '#16a34a', fontWeight: 'bold' }}>✓ Completed {site.endDate && new Date(site.endDate).toLocaleDateString()}</div>
-                                ) : (
-                                    <div style={{ color: '#d97706', fontWeight: 'bold' }}>⚡ Active</div>
-                                )}
-                            </div>
-
-                            <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                <span className="text-accent" style={{ fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }} onClick={() => handleOpenDetails(site)}>Manage ➔</span>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    ) : (
+                        <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem', marginBottom: '3rem' }}>
+                            <p className="text-secondary">No active sites found.</p>
+                        </div>
+                    )}
+
+                    {/* Completed Sites Section */}
+                    {sites.filter(site => site.status === 'Completed').length > 0 && (
+                        <>
+                            <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', borderTop: '1px solid var(--glass-border)', paddingTop: '2rem' }}>Completed Sites</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                                {sites.filter(site => site.status === 'Completed').map(site => (
+                                    <div key={site._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s', cursor: 'pointer', opacity: 0.8 }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                            <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-secondary)' }}>{site.name}</h3>
+                                            <div style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                                Archived
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, marginBottom: '1rem' }}>
+                                            <span style={{ color: 'var(--text-secondary)' }}>📍</span>
+                                            <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                                                {site.address}
+                                            </p>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                                            <div><strong>Started:</strong> {new Date(site.startDate || site.createdAt).toLocaleDateString()}</div>
+                                            <div style={{ color: '#16a34a', fontWeight: 'bold' }}>✓ Completed {site.endDate && new Date(site.endDate).toLocaleDateString()}</div>
+                                        </div>
+                                        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                            <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }} onClick={() => handleOpenDetails(site)}>View Details ➔</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </>
             )}
 
             {/* Add Site Modal */}

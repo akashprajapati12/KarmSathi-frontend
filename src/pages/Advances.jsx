@@ -95,17 +95,20 @@ const Advances = () => {
 
     const handleDeleteAdvance = async (id, status) => {
         if (status === 'Deducted') {
-            alert("This advance has already been deducted from a salary payout and cannot be safely deleted.");
-            return;
+            if (!window.confirm("WARNING: This advance has already been deducted from a salary payout. Are you sure you want to delete it anyway?")) {
+                return;
+            }
+        } else {
+            if (!window.confirm("Are you sure you want to delete this advance record?")) {
+                return;
+            }
         }
 
-        if (window.confirm("Are you sure you want to delete this advance record?")) {
-            try {
-                await deleteAdvance(id);
-                setAdvances(advances.filter(a => a._id !== id));
-            } catch (err) {
-                alert("Failed to delete record.");
-            }
+        try {
+            await deleteAdvance(id);
+            setAdvances(advances.filter(a => a._id !== id));
+        } catch (err) {
+            alert("Failed to delete record.");
         }
     };
 
@@ -190,9 +193,8 @@ const Advances = () => {
                                         className="btn btn-danger"
                                         style={{ width: '100%', padding: '0.5rem', fontSize: '0.9rem' }}
                                         onClick={() => handleDeleteAdvance(advance._id, advance.status)}
-                                        disabled={advance.status === 'Deducted'}
                                     >
-                                        {advance.status === 'Deducted' ? 'Locked (Salary Deducted)' : '🗑️ Delete Advance Record'}
+                                        🗑️ Delete Advance Record
                                     </button>
                                 </div>
                             </div>
