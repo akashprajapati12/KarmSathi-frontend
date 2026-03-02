@@ -331,9 +331,58 @@ const Labours = () => {
                                 </tbody>
                             </table>
 
-                            <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
-                                <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px', width: '200px', textAlign: 'center' }}>Employer Signature</div>
-                                <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px', width: '200px', textAlign: 'center' }}>Worker Signature</div>
+                            <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'space-between', color: '#64748b', position: 'relative' }}>
+                                {activeInvoice.status === 'Paid' && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: '20px',
+                                        right: '30%',
+                                        width: '150px',
+                                        height: '150px',
+                                        transform: 'rotate(-15deg)',
+                                        opacity: 0.85,
+                                        zIndex: 10,
+                                        pointerEvents: 'none'
+                                    }}>
+                                        <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="10 5" />
+                                            <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" strokeWidth="4" />
+                                            <circle cx="100" cy="100" r="68" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="5 5" />
+
+                                            <path id="curveTopL" d="M 40 100 A 60 60 0 0 1 160 100" fill="transparent" />
+                                            <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                <textPath href="#curveTopL" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                            </text>
+
+                                            <path id="curveBottomL" d="M 35 110 A 65 65 0 0 0 165 110" fill="transparent" />
+                                            <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                <textPath href="#curveBottomL" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                            </text>
+
+                                            <text x="100" y="118" fill="#10b981" fontSize="56" fontWeight="900" textAnchor="middle" letterSpacing="4">PAID</text>
+
+                                            <line x1="20" y1="80" x2="180" y2="80" stroke="#ffffff" strokeWidth="3" opacity="0.6" strokeDasharray="4 2 8 4" />
+                                            <line x1="30" y1="120" x2="170" y2="120" stroke="#ffffff" strokeWidth="4" opacity="0.5" strokeDasharray="10 5 2 8" />
+                                            <line x1="50" y1="140" x2="150" y2="140" stroke="#ffffff" strokeWidth="2" opacity="0.7" strokeDasharray="6 4" />
+                                        </svg>
+                                    </div>
+                                )}
+                                <div style={{ width: '200px', textAlign: 'center' }}>
+                                    <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                        {activeInvoice.owner?.name}
+                                    </div>
+                                    <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px' }}>
+                                        Employer Signature
+                                    </div>
+                                </div>
+                                <div style={{ width: '200px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                    <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                        {activeInvoice.labour?.name}
+                                    </div>
+                                    <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px' }}>
+                                        Worker Signature
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

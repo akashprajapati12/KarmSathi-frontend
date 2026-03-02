@@ -235,82 +235,164 @@ const Salaries = () => {
                         <p className="text-secondary" style={{ marginBottom: '1.5rem' }}>Try changing the filters or run a new calculation.</p>
                     </div>
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
-                        {salaries.map(salary => (
-                            <div key={salary._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>{salary.labour?.name}</h3>
-                                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{salary.labour?.mobileNumber}</p>
-                                    </div>
-                                    <span style={{
-                                        padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold',
-                                        background: salary.status === 'Paid' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)',
-                                        color: salary.status === 'Paid' ? '#4ade80' : '#facc15'
-                                    }}>
-                                        {salary.status}
-                                    </span>
-                                </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        {salaries.some(s => s.status !== 'Paid') && (
+                            <div>
+                                <h3 style={{ marginBottom: '1rem', color: '#facc15' }}>Pending Salaries</h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+                                    {salaries.filter(s => s.status !== 'Paid').map(salary => (
+                                        <div key={salary._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div>
+                                                    <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>{salary.labour?.name}</h3>
+                                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{salary.labour?.mobileNumber}</p>
+                                                </div>
+                                                <span style={{
+                                                    padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                    background: salary.status === 'Paid' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)',
+                                                    color: salary.status === 'Paid' ? '#4ade80' : '#facc15'
+                                                }}>
+                                                    {salary.status}
+                                                </span>
+                                            </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                    <div>
-                                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Present Days</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{salary.presentDays}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Basic Wages</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{salary.basicSalary}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Hours(Extra)</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>{salary.totalOvertimeHours}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Payout</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>₹{salary.overtimePay.toFixed(2)}</div>
-                                    </div>
-                                </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Present Days</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{salary.presentDays}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Basic Wages</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{salary.basicSalary}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Hours(Extra)</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>{salary.totalOvertimeHours}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Payout</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>₹{salary.overtimePay.toFixed(2)}</div>
+                                                </div>
+                                            </div>
 
-                                <div
-                                    style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.2s' }}
-                                    onClick={() => handleAdvanceUpdate(salary._id, salary.advanceTaken)}
-                                    title="Click to edit Advance amount"
-                                >
-                                    <span style={{ color: 'var(--text-secondary)' }}>Advance Taken</span>
-                                    <span style={{ fontWeight: 'bold', color: '#f87171' }}>- ₹{salary.advanceTaken} ✏️</span>
-                                </div>
+                                            <div
+                                                style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.2s' }}
+                                                onClick={() => handleAdvanceUpdate(salary._id, salary.advanceTaken)}
+                                                title="Click to edit Advance amount"
+                                            >
+                                                <span style={{ color: 'var(--text-secondary)' }}>Advance Taken</span>
+                                                <span style={{ fontWeight: 'bold', color: '#f87171' }}>- ₹{salary.advanceTaken} ✏️</span>
+                                            </div>
 
-                                <div style={{ marginTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Net Payable:</span>
-                                    <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(0)}</span>
-                                </div>
+                                            <div style={{ marginTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Net Payable:</span>
+                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(0)}</span>
+                                            </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginTop: 'auto' }}>
-                                    <button
-                                        className="btn btn-primary"
-                                        style={{ padding: '0.5rem', fontSize: '0.85rem', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', borderColor: 'rgba(34, 197, 94, 0.4)' }}
-                                        onClick={() => handleMarkPaid(salary._id)}
-                                        disabled={salary.status === 'Paid'}
-                                    >
-                                        {salary.status === 'Paid' ? 'Paid ✓' : 'Mark Paid'}
-                                    </button>
-                                    <button
-                                        className="btn btn-primary"
-                                        style={{ padding: '0.5rem', fontSize: '0.85rem' }}
-                                        onClick={() => generatePDF(salary)}
-                                    >
-                                        🖨️ Print
-                                    </button>
-                                    <button
-                                        className="btn btn-danger"
-                                        style={{ padding: '0.5rem', fontSize: '0.85rem' }}
-                                        onClick={() => handleDelete(salary._id)}
-                                    >
-                                        🗑️ Delete
-                                    </button>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginTop: 'auto' }}>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ padding: '0.5rem', fontSize: '0.85rem', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', borderColor: 'rgba(34, 197, 94, 0.4)' }}
+                                                    onClick={() => handleMarkPaid(salary._id)}
+                                                    disabled={salary.status === 'Paid'}
+                                                >
+                                                    {salary.status === 'Paid' ? 'Paid ✓' : 'Mark Paid'}
+                                                </button>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                                                    onClick={() => generatePDF(salary)}
+                                                >
+                                                    🖨️ Print
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger"
+                                                    style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                                                    onClick={() => handleDelete(salary._id)}
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        )}
+
+                        {salaries.some(s => s.status === 'Paid') && (
+                            <div>
+                                <h3 style={{ marginBottom: '1rem', color: '#4ade80' }}>Paid Salaries</h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+                                    {salaries.filter(s => s.status === 'Paid').map(salary => (
+                                        <div key={salary._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div>
+                                                    <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>{salary.labour?.name}</h3>
+                                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{salary.labour?.mobileNumber}</p>
+                                                </div>
+                                                <span style={{
+                                                    padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                    background: 'rgba(34, 197, 94, 0.2)',
+                                                    color: '#4ade80'
+                                                }}>
+                                                    {salary.status}
+                                                </span>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Present Days</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{salary.presentDays}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Basic Wages</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{salary.basicSalary}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Hours(Extra)</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>{salary.totalOvertimeHours}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>OT Payout</div>
+                                                    <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-primary)' }}>₹{salary.overtimePay.toFixed(2)}</div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.2s' }}
+                                                onClick={() => handleAdvanceUpdate(salary._id, salary.advanceTaken)}
+                                                title="Click to edit Advance amount"
+                                            >
+                                                <span style={{ color: 'var(--text-secondary)' }}>Advance Taken</span>
+                                                <span style={{ fontWeight: 'bold', color: '#f87171' }}>- ₹{salary.advanceTaken} ✏️</span>
+                                            </div>
+
+                                            <div style={{ marginTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Net Payable:</span>
+                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(0)}</span>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: 'auto' }}>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                                                    onClick={() => generatePDF(salary)}
+                                                >
+                                                    🖨️ Print
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger"
+                                                    style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                                                    onClick={() => handleDelete(salary._id)}
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -468,13 +550,50 @@ const Salaries = () => {
                                     </table>
                                 </div>
 
-                                <div style={{ marginTop: '150px', display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '1.2rem', fontWeight: '500' }}>
+                                <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '1.2rem', fontWeight: '500', position: 'relative' }}>
+                                    {activeInvoice.status === 'Paid' && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            bottom: '20px',
+                                            right: '30%',
+                                            width: '180px',
+                                            height: '180px',
+                                            transform: 'rotate(-15deg)',
+                                            opacity: 0.85,
+                                            zIndex: 10,
+                                            pointerEvents: 'none'
+                                        }}>
+                                            <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="10 5" />
+                                                <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" strokeWidth="4" />
+                                                <circle cx="100" cy="100" r="68" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="5 5" />
+                                                <path id="curveTop2" d="M 40 100 A 60 60 0 0 1 160 100" fill="transparent" />
+                                                <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                    <textPath href="#curveTop2" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                                </text>
+                                                <path id="curveBottom2" d="M 35 110 A 65 65 0 0 0 165 110" fill="transparent" />
+                                                <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                    <textPath href="#curveBottom2" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                                </text>
+                                                <text x="100" y="118" fill="#10b981" fontSize="56" fontWeight="900" textAnchor="middle" letterSpacing="4">PAID</text>
+                                                <line x1="20" y1="80" x2="180" y2="80" stroke="#ffffff" strokeWidth="3" opacity="0.6" strokeDasharray="4 2 8 4" />
+                                                <line x1="30" y1="120" x2="170" y2="120" stroke="#ffffff" strokeWidth="4" opacity="0.5" strokeDasharray="10 5 2 8" />
+                                                <line x1="50" y1="140" x2="150" y2="140" stroke="#ffffff" strokeWidth="2" opacity="0.7" strokeDasharray="6 4" />
+                                            </svg>
+                                        </div>
+                                    )}
                                     <div style={{ width: '250px', textAlign: 'center' }}>
+                                        <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                            {activeInvoice.owner?.name}
+                                        </div>
                                         <div style={{ borderTop: '2px solid #64748b', paddingTop: '15px' }}>
                                             Employer Signature
                                         </div>
                                     </div>
                                     <div style={{ width: '250px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                        <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                            {activeInvoice.labour?.name}
+                                        </div>
                                         <div style={{ borderTop: '2px solid #64748b', paddingTop: '15px' }}>
                                             Worker Signature
                                         </div>
