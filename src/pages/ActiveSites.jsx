@@ -35,7 +35,7 @@ const ActiveSites = () => {
     const fetchSites = async () => {
         try {
             setLoading(true);
-            const data = await getSites();
+            const data = await getSites(true);
             setSites(data);
         } catch (err) {
             console.error(err);
@@ -246,6 +246,7 @@ const ActiveSites = () => {
                             </div>
                         </>
                     )}
+
                 </>
             )}
 

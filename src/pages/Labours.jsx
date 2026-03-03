@@ -132,7 +132,7 @@ const Labours = () => {
             name: labour.name,
             mobileNumber: labour.mobileNumber,
             address: labour.address,
-            site: labour.site?._id || labour.site,
+            site: labour.site?._id || labour.site || '',
             aadharNumber: labour.aadharNumber,
             designation: labour.designation,
             dailyRate: labour.dailyRate

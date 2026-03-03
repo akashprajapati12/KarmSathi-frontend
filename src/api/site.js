@@ -20,8 +20,8 @@ authApi.interceptors.request.use(
     }
 );
 
-export const getSites = async () => {
-    const response = await authApi.get('/api/sites');
+export const getSites = async (all = false) => {
+    const response = await authApi.get(`/api/sites${all ? '?all=true' : ''}`);
     return response.data;
 };
 

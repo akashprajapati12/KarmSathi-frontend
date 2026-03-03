@@ -180,7 +180,12 @@ const Attendance = () => {
                                         {/* Column 1: Worker Details */}
                                         <td>
                                             <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '1.1rem' }}>{labour.name}</div>
-                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{labour.designation}</div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                {labour.designation}
+                                                {selectedSite === 'All Sites' && (
+                                                    <span> • {labour.site?.name || 'N/A'}</span>
+                                                )}
+                                            </div>
                                         </td>
 
                                         {/* Column 2: Status */}
