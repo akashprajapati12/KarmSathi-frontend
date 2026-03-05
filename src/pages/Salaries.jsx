@@ -264,6 +264,7 @@ const Salaries = () => {
                                                 <div>
                                                     <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>{salary.labour?.name}</h3>
                                                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{salary.labour?.mobileNumber}</p>
+                                                    <p style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', margin: '4px 0 0 0', fontWeight: 'bold' }}>📍 {salary.site?.name}</p>
                                                 </div>
                                                 <span style={{
                                                     padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold',
@@ -304,7 +305,7 @@ const Salaries = () => {
 
                                             <div style={{ marginTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Net Payable:</span>
-                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(0)}</span>
+                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(2)}</span>
                                             </div>
 
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginTop: 'auto' }}>
@@ -347,6 +348,7 @@ const Salaries = () => {
                                                 <div>
                                                     <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>{salary.labour?.name}</h3>
                                                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{salary.labour?.mobileNumber}</p>
+                                                    <p style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', margin: '4px 0 0 0', fontWeight: 'bold' }}>📍 {salary.site?.name}</p>
                                                 </div>
                                                 <span style={{
                                                     padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold',
@@ -387,7 +389,7 @@ const Salaries = () => {
 
                                             <div style={{ marginTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Net Payable:</span>
-                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(0)}</span>
+                                                <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salary.netPayable.toFixed(2)}</span>
                                             </div>
 
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: 'auto' }}>

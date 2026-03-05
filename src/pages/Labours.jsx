@@ -558,7 +558,7 @@ const Labours = () => {
                                             <label className="form-label">Designation</label>
                                         </div>
                                         <div className="form-group">
-                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" required />
+                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" step="any" required />
                                             <label className="form-label">Daily Wage Rate (₹)</label>
                                         </div>
                                     </div>
@@ -712,7 +712,7 @@ const Labours = () => {
                                         <label className="form-label">Designation</label>
                                     </div>
                                     <div className="form-group">
-                                        <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" required />
+                                        <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" step="any" required />
                                         <label className="form-label">Daily Wage Rate (₹)</label>
                                     </div>
                                 </div>

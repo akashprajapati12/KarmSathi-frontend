@@ -292,7 +292,7 @@ const Advances = () => {
                                 </div>
 
                                 <div className="form-group">
-                                    <input type="number" name="amount" min="1" step="0.01" className="form-input" placeholder="E.g., 500" value={newAdvance.amount} onChange={handleInputChange} required />
+                                    <input type="number" name="amount" min="0" step="any" className="form-input" placeholder="E.g., 500" value={newAdvance.amount} onChange={handleInputChange} required />
                                     <label className="form-label">Amount (₹)</label>
                                 </div>
                                 <div className="form-group">
