@@ -47,6 +47,11 @@ export const deleteLabour = async (id) => {
     return response.data;
 };
 
+export const getLabourSiteSummary = async (id) => {
+    const response = await authApi.get(`/api/labours/${id}/site-summary`);
+    return response.data;
+};
+
 // --- Attendance Endpoints ---
 
 export const getDailyAttendance = async (dateStr) => {

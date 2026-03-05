@@ -63,6 +63,11 @@ const Attendance = () => {
     };
 
     const handleMarkAttendance = async (labourId, status, extraHours = 0) => {
+        if (!selectedSite || selectedSite === 'All Sites') {
+            alert("Please select a specific site to mark attendance.");
+            return;
+        }
+
         try {
             let calcHours = 0;
             if (status === 'Present') calcHours = 8;
@@ -74,7 +79,8 @@ const Attendance = () => {
                 labourId,
                 date: selectedDate,
                 status: status,
-                hours: calcHours
+                hours: calcHours,
+                siteId: selectedSite
             });
 
             // Update state immediately for snappy UI
@@ -153,7 +159,7 @@ const Attendance = () => {
                 <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
                     <h3 className="text-secondary">Please select a site to view and mark attendance.</h3>
                 </div>
-            ) : labours.filter(l => selectedSite === 'All Sites' ? true : (l.site?._id || l.site) === selectedSite).length === 0 ? (
+            ) : labours.filter(l => selectedSite === 'All Sites' ? true : l.sites?.some(s => (s._id || s) === selectedSite)).length === 0 ? (
                 <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
                     <h3 className="text-secondary">No workers found for this site.</h3>
                 </div>
@@ -169,10 +175,15 @@ const Attendance = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {labours.filter(l => selectedSite === 'All Sites' ? true : (l.site?._id || l.site) === selectedSite).map(labour => {
+                            {labours.filter(l => selectedSite === 'All Sites' ? true : l.sites?.some(s => (s._id || s) === selectedSite)).map(labour => {
                                 const record = attendanceRecords[labour._id];
                                 const status = record?.status || 'Not Marked';
                                 const hours = record?.hours || 0;
+
+                                // Check if attendance is marked at another site
+                                const recordSiteId = record?.site?._id || record?.site;
+                                const isMarkedAtAnotherSite = recordSiteId && selectedSite !== 'All Sites' && recordSiteId !== selectedSite;
+                                const otherSiteName = isMarkedAtAnotherSite ? (sites.find(s => s._id === recordSiteId)?.name || 'Another Site') : '';
 
                                 return (
                                     <tr key={labour._id}>
@@ -183,7 +194,12 @@ const Attendance = () => {
                                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                                 {labour.designation}
                                                 {selectedSite === 'All Sites' && (
-                                                    <span> • {labour.site?.name || 'N/A'}</span>
+                                                    <span> • {labour.sites?.map(s => s.name).join(', ')}</span>
+                                                )}
+                                                {isMarkedAtAnotherSite && (
+                                                    <div style={{ color: '#f87171', fontWeight: 'bold', marginTop: '4px' }}>
+                                                        ⚠️ Marked at {otherSiteName}
+                                                    </div>
                                                 )}
                                             </div>
                                         </td>
@@ -206,33 +222,37 @@ const Attendance = () => {
                                         <td>
                                             <div className="action-buttons">
                                                 <button
-                                                    onClick={() => handleMarkAttendance(labour._id, 'Present')}
-                                                    className={`btn-mark mark-p ${status === 'Present' ? 'active' : ''}`}
-                                                    title="Present (8 hrs)"
+                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Present')}
+                                                    className={`btn-mark mark-p ${status === 'Present' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Present (8 hrs)"}
+                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
                                                 >
                                                     P
                                                 </button>
 
                                                 <button
-                                                    onClick={() => handleMarkAttendance(labour._id, 'Absent')}
-                                                    className={`btn-mark mark-a ${status === 'Absent' ? 'active' : ''}`}
-                                                    title="Absent (0 hrs)"
+                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Absent')}
+                                                    className={`btn-mark mark-a ${status === 'Absent' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Absent (0 hrs)"}
+                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
                                                 >
                                                     A
                                                 </button>
 
                                                 <button
-                                                    onClick={() => handleMarkAttendance(labour._id, 'Half Day')}
-                                                    className={`btn-mark mark-hd ${status === 'Half Day' ? 'active' : ''}`}
-                                                    title="Half Day (4 hrs)"
+                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Half Day')}
+                                                    className={`btn-mark mark-hd ${status === 'Half Day' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Half Day (4 hrs)"}
+                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
                                                 >
                                                     H-D
                                                 </button>
 
                                                 <button
-                                                    onClick={() => openOtModal(labour._id, labour.name)}
-                                                    className={`btn-mark mark-ot ${status === 'Overtime' ? 'active' : ''}`}
-                                                    title="Overtime (8 + extra hrs)"
+                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && openOtModal(labour._id, labour.name)}
+                                                    className={`btn-mark mark-ot ${status === 'Overtime' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Overtime (8 + extra hrs)"}
+                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
                                                 >
                                                     OT
                                                 </button>

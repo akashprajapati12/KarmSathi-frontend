@@ -1,13 +1,75 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
-import { getLabours, createLabour, deleteLabour, updateLabour } from '../api/labour';
+import { getLabours, createLabour, deleteLabour, updateLabour, getLabourSiteSummary } from '../api/labour';
 import { getSites } from '../api/site';
 import { getLabourSalaryHistory, deleteSalaryRecord } from '../api/salaries';
 import LabourCalendar from '../components/LabourCalendar';
 import CustomDropdown from '../components/ui/CustomDropdown';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+// Internal component for site-wise work summary
+const SiteWorkSummary = ({ labourId, onSiteClick }) => {
+    const [summary, setSummary] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            try {
+                const data = await getLabourSiteSummary(labourId);
+                setSummary(data);
+            } catch (err) {
+                console.error("Failed to fetch site summary", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSummary();
+    }, [labourId]);
+
+    if (loading) return <div>Loading summary...</div>;
+    if (summary.length === 0) return <div className="text-secondary" style={{ fontStyle: 'italic' }}>No work history found across sites.</div>;
+
+    return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+            {summary.map((item, idx) => {
+                return (
+                    <div
+                        key={idx}
+                        className={`glass-panel`}
+                        style={{
+                            padding: '1rem',
+                            borderLeft: '4px solid rgba(255,255,255,0.1)',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                            e.currentTarget.style.borderLeft = '4px solid var(--accent-primary)';
+                            e.currentTarget.style.transform = 'translateY(-5px)';
+                            e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3), 0 0 15px rgba(99, 102, 241, 0.2)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                            e.currentTarget.style.borderLeft = '4px solid rgba(255,255,255,0.1)';
+                            e.currentTarget.style.transform = 'none';
+                            e.currentTarget.style.boxShadow = 'none';
+                        }}
+                        onClick={() => onSiteClick(item.siteId, item.siteName)}
+                    >
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', transition: 'color 0.3s' }}>Site</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{item.siteName}</div>
+                        <div style={{ marginTop: '5px', color: 'var(--accent-primary)', transition: 'color 0.3s' }}>
+                            <strong>{item.count}</strong> {item.count === 1 ? 'Day' : 'Days'} Worked
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
 // Hardcoded months array for the dropdown/printing
 const MONTHS = [
@@ -24,6 +86,8 @@ const Labours = () => {
     const [sites, setSites] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+    const [calendarModalSite, setCalendarModalSite] = useState({ id: null, name: '' });
 
     // Views: 'list' | 'details'
     const [currentView, setCurrentView] = useState('list');
@@ -39,7 +103,7 @@ const Labours = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLabourId, setEditingLabourId] = useState(null);
     const [newLabour, setNewLabour] = useState({
-        name: '', mobileNumber: '', address: '', site: '', aadharNumber: '', designation: '', dailyRate: ''
+        name: '', mobileNumber: '', address: '', sites: [], aadharNumber: '', designation: '', dailyRate: ''
     });
     const [isCreating, setIsCreating] = useState(false);
 
@@ -52,7 +116,7 @@ const Labours = () => {
         if (location.state?.openAddModal) {
             setIsModalOpen(true);
             setEditingLabourId(null);
-            setNewLabour({ name: '', mobileNumber: '', address: '', site: '', aadharNumber: '', designation: '', dailyRate: '' });
+            setNewLabour({ name: '', mobileNumber: '', address: '', sites: [], aadharNumber: '', designation: '', dailyRate: '' });
             // Clear the state from history so reload doesn't keep opening it
             window.history.replaceState({}, document.title);
         }
@@ -123,7 +187,7 @@ const Labours = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingLabourId(null);
-        setNewLabour({ name: '', mobileNumber: '', address: '', site: '', aadharNumber: '', designation: '', dailyRate: '' });
+        setNewLabour({ name: '', mobileNumber: '', address: '', sites: [], aadharNumber: '', designation: '', dailyRate: '' });
     };
 
     const openEditModal = (labour) => {
@@ -132,7 +196,7 @@ const Labours = () => {
             name: labour.name,
             mobileNumber: labour.mobileNumber,
             address: labour.address,
-            site: labour.site?._id || labour.site || '',
+            sites: labour.sites?.map(s => s._id || s) || [],
             aadharNumber: labour.aadharNumber,
             designation: labour.designation,
             dailyRate: labour.dailyRate
@@ -166,6 +230,8 @@ const Labours = () => {
     };
 
     const openDetails = (labour) => {
+        setCalendarModalSite({ id: null, name: '' });
+        setIsCalendarModalOpen(false);
         setSelectedLabour(labour);
         setCurrentView('details');
     };
@@ -200,14 +266,16 @@ const Labours = () => {
     if (currentView === 'details' && selectedLabour) {
         return (
             <div className="container animate-fade-in" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
-                <button className="btn" style={{ background: 'transparent', color: 'var(--text-secondary)', padding: 0, marginBottom: '1.5rem', width: 'auto' }} onClick={() => setCurrentView('list')}>
+                <button className="btn" style={{ background: 'transparent', color: 'var(--text-secondary)', padding: 0, marginBottom: '1.5rem', width: 'auto' }} onClick={() => { setCurrentView('list'); setIsCalendarModalOpen(false); }}>
                     ← Back to Directory
                 </button>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
                     <div>
                         <h2 style={{ fontSize: '2.5rem', margin: 0, color: 'var(--accent-primary)' }}>{selectedLabour.name}</h2>
-                        <p className="text-secondary" style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>{selectedLabour.designation} • {selectedLabour.site?.name || 'Unassigned Site'}</p>
+                        <p className="text-secondary" style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>
+                            {selectedLabour.designation} • {selectedLabour.sites?.map(s => s.name).join(', ') || 'Unassigned'}
+                        </p>
                     </div>
                     <div>
                         <button className="btn btn-primary" style={{ width: 'auto', marginRight: '10px' }} onClick={() => openEditModal(selectedLabour)}>
@@ -231,9 +299,22 @@ const Labours = () => {
                     </div>
                 </div>
 
-                {/* Integrated Calendar Component */}
-                <h3 style={{ marginBottom: '1rem' }}>Monthly Attendance</h3>
-                <LabourCalendar labourId={selectedLabour._id} />
+                {/* Site-wise Summary */}
+                <h3 style={{ marginBottom: '1rem' }}>Site-wise Work Summary</h3>
+                <p className="text-secondary" style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>Click on a site card to view the attendance calendar for that specific site.</p>
+                <SiteWorkSummary
+                    labourId={selectedLabour._id}
+                    onSiteClick={(siteId, siteName) => {
+                        setCalendarModalSite({ id: siteId, name: siteName });
+                        setIsCalendarModalOpen(true);
+                    }}
+                />
+
+                {/* Integrated Calendar Component - Overall */}
+                <h3 style={{ marginTop: '3rem', marginBottom: '1rem' }}>
+                    Overall Monthly Attendance
+                </h3>
+                <LabourCalendar labourId={selectedLabour._id} highlightedSiteId={null} />
 
                 {/* Salary History Section */}
                 <h3 style={{ marginTop: '3rem', marginBottom: '1rem' }}>Salary History & Slips</h3>
@@ -388,6 +469,28 @@ const Labours = () => {
                     </div>
                 )}
 
+                {/* Calendar Popup Modal */}
+                {isCalendarModalOpen && createPortal(
+                    <div className="modal-overlay" style={{ zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)' }}>
+                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '800px', background: 'var(--bg-secondary)', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.5rem' }}>Site Attendance Calendar</h3>
+                                    <p style={{ color: 'var(--accent-primary)', margin: '0.5rem 0 0 0', fontWeight: 'bold' }}>{calendarModalSite.name}</p>
+                                </div>
+                                <button onClick={() => setIsCalendarModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: '1' }}>&times;</button>
+                            </div>
+
+                            <LabourCalendar labourId={selectedLabour._id} highlightedSiteId={calendarModalSite.id} />
+
+                            <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+                                <button className="btn btn-primary" style={{ width: 'auto' }} onClick={() => setIsCalendarModalOpen(false)}>Close Calendar</button>
+                            </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
+
                 {/* Edit Labour Modal Form (Details View) */}
                 {
                     isModalOpen && createPortal(
@@ -416,15 +519,32 @@ const Labours = () => {
                                     </div>
 
                                     <div className="form-group">
-                                        <CustomDropdown
-                                            name="site"
-                                            value={newLabour.site}
-                                            onChange={handleInputChange}
-                                            options={sites.map(s => ({ value: s._id, label: `${s.name} (${s.address})` }))}
-                                            placeholder="Select Active Site..."
-                                            required
-                                        />
-                                        <label className="form-label" style={{ marginTop: '0.5rem' }}>Assign to Site</label>
+                                        <div style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Assign to Sites (Select multiple):</div>
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                                            gap: '0.8rem',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            padding: '1rem',
+                                            borderRadius: '8px',
+                                            border: '1px solid var(--glass-border)'
+                                        }}>
+                                            {sites.map(s => (
+                                                <label key={s._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={newLabour.sites.includes(s._id)}
+                                                        onChange={(e) => {
+                                                            const newSites = e.target.checked
+                                                                ? [...newLabour.sites, s._id]
+                                                                : newLabour.sites.filter(id => id !== s._id);
+                                                            setNewLabour({ ...newLabour, sites: newSites });
+                                                        }}
+                                                    />
+                                                    <span style={{ fontSize: '0.9rem' }}>{s.name}</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <div className="form-group">
@@ -491,45 +611,35 @@ const Labours = () => {
                     </div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-                        {/* Group labours by site */}
-                        {(() => {
-                            const grouped = {};
-                            labours.forEach(l => {
-                                const siteName = l.site?.name || 'Unassigned Workers';
-                                if (!grouped[siteName]) grouped[siteName] = [];
-                                grouped[siteName].push(l);
-                            });
-
-                            return Object.entries(grouped).map(([siteName, siteLabours]) => (
-                                <div key={siteName}>
-                                    <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-primary)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
-                                        🏗️ {siteName} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px' }}>({siteLabours.length} workers)</span>
-                                    </h3>
-
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
-                                        {siteLabours.map(labour => (
-                                            <div key={labour._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                                                <div style={{ flex: 1 }}>
-                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>{labour.name}</h3>
-                                                    <p style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '500' }}>{labour.designation}</p>
-                                                    <div style={{ display: 'flex', gap: '8px', marginBottom: '0.5rem', alignItems: 'center' }}>
-                                                        <span style={{ opacity: 0.7 }}>📱</span> <span style={{ fontSize: '0.9rem' }}>{labour.mobileNumber}</span>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    className="btn btn-primary"
-                                                    style={{ marginTop: '1.5rem', padding: '0.6rem' }}
-                                                    onClick={() => openDetails(labour)}
-                                                >
-                                                    View Details & Attendance
-                                                </button>
-                                            </div>
-                                        ))}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                            {labours.map(labour => (
+                                <div key={labour._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>{labour.name}</h3>
+                                        <p style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '500' }}>{labour.designation}</p>
+                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '0.5rem', alignItems: 'center' }}>
+                                            <span style={{ opacity: 0.7 }}>📱</span> <span style={{ fontSize: '0.9rem' }}>{labour.mobileNumber}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                                            <span style={{ opacity: 0.7 }}>🏗️</span>
+                                            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                                {labour.sites && labour.sites.length > 0
+                                                    ? labour.sites.map(s => s.name).join(', ')
+                                                    : 'Unassigned'}
+                                            </span>
+                                        </div>
                                     </div>
+
+                                    <button
+                                        className="btn btn-primary"
+                                        style={{ marginTop: '1.5rem', padding: '0.6rem' }}
+                                        onClick={() => openDetails(labour)}
+                                    >
+                                        View Details & Attendance
+                                    </button>
                                 </div>
-                            ));
-                        })()}
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -563,15 +673,32 @@ const Labours = () => {
                                 </div>
 
                                 <div className="form-group">
-                                    <CustomDropdown
-                                        name="site"
-                                        value={newLabour.site}
-                                        onChange={handleInputChange}
-                                        options={sites.map(s => ({ value: s._id, label: `${s.name} (${s.address})` }))}
-                                        placeholder="Select Active Site..."
-                                        required
-                                    />
-                                    <label className="form-label" style={{ marginTop: '0.5rem' }}>Assign to Site</label>
+                                    <div style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Assign to Sites (Select multiple):</div>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                                        gap: '0.8rem',
+                                        background: 'rgba(255,255,255,0.03)',
+                                        padding: '1rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid var(--glass-border)'
+                                    }}>
+                                        {sites.map(s => (
+                                            <label key={s._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={newLabour.sites.includes(s._id)}
+                                                    onChange={(e) => {
+                                                        const newSites = e.target.checked
+                                                            ? [...newLabour.sites, s._id]
+                                                            : newLabour.sites.filter(id => id !== s._id);
+                                                        setNewLabour({ ...newLabour, sites: newSites });
+                                                    }}
+                                                />
+                                                <span style={{ fontSize: '0.9rem' }}>{s.name}</span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="form-group">

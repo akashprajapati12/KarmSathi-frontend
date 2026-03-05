@@ -16,6 +16,7 @@ const Advances = () => {
 
     // Modal State
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+    const [selectedWorkerAdvances, setSelectedWorkerAdvances] = useState(null);
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,7 +63,9 @@ const Advances = () => {
 
         // If site is changed, filter the workers list 
         if (name === 'siteId') {
-            const workersAtSite = allLabours.filter(l => l.site?._id === value);
+            const workersAtSite = allLabours.filter(l =>
+                l.sites && l.sites.some(s => (s._id || s) === value)
+            );
             setFilteredWorkers(workersAtSite);
             setNewAdvance(prev => ({ ...prev, labourId: '' })); // Reset selected worker
         }
@@ -160,46 +163,97 @@ const Advances = () => {
                     </div>
                 ) : (
                     <div className="advances-grid">
-                        {advances.map(advance => (
-                            <div key={advance._id} className="glass-panel advance-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>{advance.labour?.name}</h3>
-                                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 ' }}>{advance.site?.name}</p>
-                                    </div>
-                                    <span className={`status-badge status-${advance.status.toLowerCase()}`}>
-                                        {advance.status}
-                                    </span>
+                        {Object.values(advances.reduce((acc, curr) => {
+                            const key = curr.labour?._id;
+                            if (!acc[key]) {
+                                acc[key] = {
+                                    labour: curr.labour,
+                                    totalAmount: 0,
+                                    records: []
+                                };
+                            }
+                            acc[key].totalAmount += curr.amount;
+                            acc[key].records.push(curr);
+                            return acc;
+                        }, {})).map((group, index) => (
+                            <div key={index} className="glass-panel advance-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.6rem', color: 'var(--text-primary)' }}>{group.labour?.name}</h3>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{group.labour?.designation || 'Worker'}</p>
                                 </div>
 
-                                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'flex-end' }}>
-                                        <div>
-                                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Amount Given</div>
-                                            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#f87171' }}>₹{advance.amount.toFixed(2)}</div>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Date</div>
-                                            <div style={{ fontWeight: '600' }}>{formatDate(advance.dateGiven)}</div>
-                                        </div>
-                                    </div>
-
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>Reason (Optional)</div>
-                                    <div style={{ fontWeight: '500', fontStyle: 'italic' }}>"{advance.reason || 'None provided'}"</div>
+                                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center' }}>
+                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Advance Taken</div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f87171' }}>₹{group.totalAmount.toFixed(2)}</div>
                                 </div>
 
-                                <div style={{ marginTop: 'auto' }}>
-                                    <button
-                                        className="btn btn-danger"
-                                        style={{ width: '100%', padding: '0.5rem', fontSize: '0.9rem' }}
-                                        onClick={() => handleDeleteAdvance(advance._id, advance.status)}
-                                    >
-                                        🗑️ Delete Advance Record
-                                    </button>
-                                </div>
+                                <button
+                                    className="btn btn-primary"
+                                    style={{ marginTop: 'auto', width: '100%' }}
+                                    onClick={() => setSelectedWorkerAdvances(group)}
+                                >
+                                    View Advance Slip ➔
+                                </button>
                             </div>
                         ))}
                     </div>
+                )}
+
+                {/* Worker Advance Slip Modal */}
+                {selectedWorkerAdvances && selectedWorkerAdvances.records.length > 0 && createPortal(
+                    <div className="modal-overlay">
+                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ margin: 0, fontSize: '1.8rem' }}>{selectedWorkerAdvances.labour?.name}'s Advance Slip</h3>
+                                <button onClick={() => setSelectedWorkerAdvances(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+                                {selectedWorkerAdvances.records.map(record => (
+                                    <div key={record._id} style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Site: {record.site?.name}</div>
+                                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>Date: {formatDate(record.dateGiven)}</div>
+                                            {record.reason && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic', marginTop: '5px' }}>"{record.reason}"</div>}
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#f87171', marginBottom: '10px' }}>₹{record.amount.toFixed(2)}</div>
+                                            <span className={`status-badge status-${record.status.toLowerCase()}`}>{record.status}</span>
+                                            <br />
+                                            <button
+                                                className="btn btn-danger"
+                                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', marginTop: '10px', display: 'inline-block' }}
+                                                onClick={async () => {
+                                                    await handleDeleteAdvance(record._id, record.status);
+                                                    // Immediately remove from the modal view
+                                                    setSelectedWorkerAdvances(prev => {
+                                                        const newRecords = prev.records.filter(r => r._id !== record._id);
+                                                        return {
+                                                            ...prev,
+                                                            records: newRecords,
+                                                            totalAmount: prev.totalAmount - record.amount
+                                                        };
+                                                    });
+                                                }}
+                                            >
+                                                🗑️ Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ borderTop: '2px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '1.2rem', fontWeight: '500' }}>Overall Total Advance:</span>
+                                <span style={{ fontSize: '2.2rem', fontWeight: 'bold', color: '#f87171' }}>₹{selectedWorkerAdvances.totalAmount.toFixed(2)}</span>
+                            </div>
+
+                            <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.5rem' }} onClick={() => setSelectedWorkerAdvances(null)}>
+                                Close Slip
+                            </button>
+                        </div>
+                    </div>,
+                    document.body
                 )}
 
                 {/* Record Advance Modal */}
