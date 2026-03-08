@@ -149,7 +149,46 @@ const Labours = () => {
     const loadSalaryHistory = async () => {
         try {
             const data = await getLabourSalaryHistory(selectedLabour._id);
-            setSalaryHistory(data);
+            
+            const grouped = data.reduce((acc, curr) => {
+                const key = `${curr.year}-${curr.month}`;
+                if (!acc[key]) {
+                    acc[key] = {
+                        _id: key,
+                        month: curr.month,
+                        year: curr.year,
+                        presentDays: 0,
+                        basicSalary: 0,
+                        totalOvertimeHours: 0,
+                        overtimePay: 0,
+                        advanceTaken: 0,
+                        netPayable: 0,
+                        originalRecordIds: [],
+                        sites: [],
+                        labour: curr.labour,
+                        owner: curr.owner,
+                        status: curr.status
+                    };
+                }
+                acc[key].presentDays += curr.presentDays;
+                acc[key].basicSalary += curr.basicSalary;
+                acc[key].totalOvertimeHours += curr.totalOvertimeHours;
+                acc[key].overtimePay += curr.overtimePay;
+                acc[key].advanceTaken += curr.advanceTaken;
+                acc[key].netPayable += curr.netPayable;
+                acc[key].originalRecordIds.push(curr._id);
+                if (curr.site && curr.site.name && !acc[key].sites.includes(curr.site.name)) {
+                    acc[key].sites.push(curr.site.name);
+                }
+                return acc;
+            }, {});
+
+            const aggregatedHistory = Object.values(grouped).sort((a, b) => {
+                if (b.year !== a.year) return b.year - a.year;
+                return b.month - a.month;
+            });
+            
+            setSalaryHistory(aggregatedHistory);
         } catch (err) {
             console.error("Failed to load salary history", err);
         }
@@ -217,11 +256,13 @@ const Labours = () => {
         }
     };
 
-    const handleDeleteSalaryRecord = async (id) => {
-        if (window.confirm("Are you sure you want to delete this salary record?")) {
+    const handleDeleteSalaryRecord = async (aggregatedRecord) => {
+        if (window.confirm("Are you sure you want to COMPLETELY and PERMANENTLY delete all salary records for this month?")) {
             try {
-                await deleteSalaryRecord(id);
-                setSalaryHistory(salaryHistory.filter(r => r._id !== id));
+                for (const id of aggregatedRecord.originalRecordIds) {
+                    await deleteSalaryRecord(id, false);
+                }
+                setSalaryHistory(salaryHistory.filter(r => r._id !== aggregatedRecord._id));
             } catch (err) {
                 console.error(err);
                 alert("Failed to delete salary record.");
@@ -327,11 +368,18 @@ const Labours = () => {
                         {salaryHistory.map(record => (
                             <div key={record._id} className="glass-panel" style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div>
-                                    <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                        {MONTHS.find(m => m.value === record.month)?.label} {record.year}
+                                    <div style={{ fontWeight: 'bold', fontSize: '1.3rem', marginBottom: '8px' }}>
+                                        {MONTHS.find(m => m.value === record.month)?.label} {record.year} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--accent-primary)', marginLeft: '10px' }}>{record.sites.join(', ')}</span>
                                     </div>
-                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-                                        Net Paid: <span style={{ color: '#4ade80', fontWeight: 'bold' }}>₹{record.netPayable.toFixed(2)}</span> • {record.presentDays} Days Present
+                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                            <span>Present: <strong style={{color: 'var(--text-primary)'}}>{record.presentDays} Days</strong></span>
+                                            <span>Wages + OT: <strong style={{color: 'var(--text-primary)'}}>₹{(record.basicSalary + record.overtimePay).toFixed(2)}</strong></span>
+                                            <span>Advance Deducted: <strong style={{color: '#f87171'}}>- ₹{record.advanceTaken.toFixed(2)}</strong></span>
+                                        </div>
+                                        <div style={{ marginTop: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px' }}>
+                                            Net Paid: <span style={{ color: '#4ade80', fontWeight: 'bold', fontSize: '1.2rem' }}>₹{record.netPayable.toFixed(2)}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div>
@@ -339,7 +387,7 @@ const Labours = () => {
                                         <button className="btn btn-primary" style={{ padding: '0.4rem 0.5rem', width: '100%', fontSize: '0.85rem' }} onClick={() => generatePDF(record)}>
                                             🖨️ Download PDF
                                         </button>
-                                        <button className="btn btn-danger" style={{ padding: '0.4rem 0.5rem', width: '100%', fontSize: '0.85rem' }} onClick={() => handleDeleteSalaryRecord(record._id)}>
+                                        <button className="btn btn-danger" style={{ padding: '0.4rem 0.5rem', width: '100%', fontSize: '0.85rem' }} onClick={() => handleDeleteSalaryRecord(record)}>
                                             🗑️ Delete Record
                                         </button>
                                     </div>
@@ -358,110 +406,138 @@ const Labours = () => {
                 {/* Hidden Invoice DOM */}
                 {activeInvoice && (
                     <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                        <div ref={invoiceRef} style={{ width: '800px', background: 'white', padding: '40px', fontFamily: 'Arial, sans-serif', color: 'black', boxSizing: 'border-box' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '3px solid #334155', paddingBottom: '20px', marginBottom: '20px' }}>
-                                <div>
-                                    <h1 style={{ margin: 0, fontSize: '32px', color: '#0f172a' }}>KARMSATHI</h1>
-                                    <p style={{ margin: '5px 0 0 0', color: '#64748b' }}>Construction Labour Management</p>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <h2 style={{ margin: 0, fontSize: '24px', color: '#3b82f6', textTransform: 'uppercase' }}>Salary Slip</h2>
-                                    <p style={{ margin: '5px 0 0 0', fontWeight: 'bold' }}>Period: {MONTHS.find(m => m.value === activeInvoice.month)?.label} {activeInvoice.year}</p>
-                                </div>
+                        <div ref={invoiceRef} style={{
+                            width: '800px', // A4 approx width ratio
+                            background: 'white',
+                            padding: '40px',
+                            fontFamily: 'Arial, sans-serif',
+                            color: 'black',
+                            boxSizing: 'border-box',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+
+                            {/* Global Watermark Background Overlay */}
+                            <div style={{
+                                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                                zIndex: 10,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                opacity: 0.15, pointerEvents: 'none'
+                            }}>
+                                <img src="/favicon.png" alt="Watermark Logo" style={{ width: '85%', height: 'auto', objectFit: 'contain' }} />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '40px', marginBottom: '30px' }}>
-                                <div style={{ flex: 1, background: '#f8fafc', padding: '15px', borderRadius: '8px' }}>
-                                    <h3 style={{ margin: '0 0 10px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '5px' }}>Worker Details</h3>
-                                    <div style={{ marginBottom: '5px' }}><strong>Name:</strong> {activeInvoice.labour?.name}</div>
-                                    <div style={{ marginBottom: '5px' }}><strong>Designation:</strong> {activeInvoice.labour?.designation}</div>
-                                    <div><strong>Mobile:</strong> {activeInvoice.labour?.mobileNumber}</div>
-                                </div>
-                                <div style={{ flex: 1, background: '#f8fafc', padding: '15px', borderRadius: '8px' }}>
-                                    <h3 style={{ margin: '0 0 10px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '5px' }}>Work Details</h3>
-                                    <div style={{ marginBottom: '5px' }}><strong>Site:</strong> {activeInvoice.site?.name}</div>
-                                    <div style={{ marginBottom: '5px' }}><strong>Daily Wage:</strong> ₹{activeInvoice.labour?.dailyRate}</div>
-                                    <div><strong>Status:</strong> <span style={{ color: activeInvoice.status === 'Paid' ? 'green' : 'orange', fontWeight: 'bold' }}>{activeInvoice.status}</span></div>
-                                </div>
-                            </div>
-
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
-                                <thead>
-                                    <tr style={{ background: '#cbd5e1' }}>
-                                        <th style={{ padding: '12px', textAlign: 'left', border: '1px solid #94a3b8' }}>Description</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', border: '1px solid #94a3b8' }}>Amount / Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1' }}>Basic Present Days ({activeInvoice.presentDays} days)</td>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1', textAlign: 'right' }}>₹{activeInvoice.basicSalary.toFixed(2)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1' }}>Overtime Bonus ({activeInvoice.totalOvertimeHours} extra hrs)</td>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1', textAlign: 'right' }}>₹{activeInvoice.overtimePay.toFixed(2)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1', color: '#ef4444' }}>Advance / Deductions</td>
-                                        <td style={{ padding: '12px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#ef4444' }}>- ₹{activeInvoice.advanceTaken.toFixed(2)}</td>
-                                    </tr>
-                                    <tr style={{ background: '#e2e8f0', fontWeight: 'bold', fontSize: '18px' }}>
-                                        <td style={{ padding: '15px', border: '1px solid #94a3b8' }}>Net Payable Amount</td>
-                                        <td style={{ padding: '15px', border: '1px solid #94a3b8', textAlign: 'right', color: '#16a34a' }}>₹{activeInvoice.netPayable.toFixed(2)}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'space-between', color: '#64748b', position: 'relative' }}>
-                                {activeInvoice.status === 'Paid' && (
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '30%',
-                                        width: '150px',
-                                        height: '150px',
-                                        transform: 'rotate(-15deg)',
-                                        opacity: 0.85,
-                                        zIndex: 10,
-                                        pointerEvents: 'none'
-                                    }}>
-                                        <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="10 5" />
-                                            <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" strokeWidth="4" />
-                                            <circle cx="100" cy="100" r="68" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="5 5" />
-
-                                            <path id="curveTopL" d="M 40 100 A 60 60 0 0 1 160 100" fill="transparent" />
-                                            <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
-                                                <textPath href="#curveTopL" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
-                                            </text>
-
-                                            <path id="curveBottomL" d="M 35 110 A 65 65 0 0 0 165 110" fill="transparent" />
-                                            <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
-                                                <textPath href="#curveBottomL" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
-                                            </text>
-
-                                            <text x="100" y="118" fill="#10b981" fontSize="56" fontWeight="900" textAnchor="middle" letterSpacing="4">PAID</text>
-
-                                            <line x1="20" y1="80" x2="180" y2="80" stroke="#ffffff" strokeWidth="3" opacity="0.6" strokeDasharray="4 2 8 4" />
-                                            <line x1="30" y1="120" x2="170" y2="120" stroke="#ffffff" strokeWidth="4" opacity="0.5" strokeDasharray="10 5 2 8" />
-                                            <line x1="50" y1="140" x2="150" y2="140" stroke="#ffffff" strokeWidth="2" opacity="0.7" strokeDasharray="6 4" />
-                                        </svg>
+                            {/* Foreground Content */}
+                            <div style={{ position: 'relative', zIndex: 1 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #334155', paddingBottom: '20px', marginBottom: '20px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                        <img src="/favicon.png" alt="Logo" style={{ width: '70px', height: '70px', objectFit: 'contain' }} />
+                                        <div>
+                                            <h1 style={{ margin: 0, fontSize: '32px', color: '#0f172a' }}>KarmSathi</h1>
+                                            <p style={{ margin: '5px 0 0 0', color: '#64748b' }}>Construction Labour Management</p>
+                                        </div>
                                     </div>
-                                )}
-                                <div style={{ width: '200px', textAlign: 'center' }}>
-                                    <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
-                                        {activeInvoice.owner?.name}
-                                    </div>
-                                    <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px' }}>
-                                        Employer Signature
+                                    <div style={{ textAlign: 'right' }}>
+                                        <h2 style={{ margin: 0, fontSize: '24px', color: '#3b82f6', textTransform: 'uppercase' }}>Salary Slip</h2>
+                                        <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', fontSize: '1.1rem' }}>Period: {MONTHS.find(m => m.value === activeInvoice.month).label} {activeInvoice.year}</p>
                                     </div>
                                 </div>
-                                <div style={{ width: '200px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                    <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
-                                        {activeInvoice.labour?.name}
+
+                                <div style={{ marginBottom: '40px' }}>
+                                    <div style={{ marginBottom: '10px', fontSize: '1.6rem', fontWeight: 'bold', color: '#0f172a' }}>{activeInvoice.labour.name}</div>
+                                    <div style={{ marginBottom: '5px', fontSize: '1.1rem' }}><strong>Designation:</strong> {activeInvoice.labour.designation}</div>
+                                    <div style={{ marginBottom: '5px', fontSize: '1.1rem' }}><strong>Mobile:</strong> {activeInvoice.labour.mobileNumber}</div>
+                                    <div style={{ fontSize: '1.1rem' }}><strong>Site:</strong> {activeInvoice.sites?.join(', ')}</div>
+                                </div>
+
+                                <div style={{ position: 'relative', marginBottom: '30px' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.1rem', position: 'relative', zIndex: 1, background: 'transparent' }}>
+                                        <thead>
+                                            <tr style={{ background: '#cbd5e1' }}>
+                                                <th style={{ padding: '14px', textAlign: 'left', border: '1px solid #94a3b8' }}>Description</th>
+                                                <th style={{ padding: '14px', textAlign: 'right', border: '1px solid #94a3b8', width: '250px' }}>Amount / Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1' }}>Basic Salary (Daily Wage)</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right' }}>₹{activeInvoice.labour.dailyRate.toFixed(2)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1' }}>Number of Days Present</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right' }}>{activeInvoice.presentDays} Days</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1' }}>Calculated Salary (Present Days × Basic Salary)</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right', fontWeight: 'bold' }}>₹{activeInvoice.basicSalary.toFixed(2)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1' }}>Overtime Hours</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right' }}>{activeInvoice.totalOvertimeHours} hrs</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1' }}>Overtime Salary</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right', fontWeight: 'bold' }}>₹{activeInvoice.overtimePay.toFixed(2)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', color: '#ea580c' }}>Advances / Deductions</td>
+                                                <td style={{ padding: '14px', border: '1px solid #cbd5e1', textAlign: 'right', color: '#ea580c', fontWeight: 'bold' }}>- ₹{activeInvoice.advanceTaken.toFixed(2)}</td>
+                                            </tr>
+                                            <tr style={{ background: '#e2e8f0', fontWeight: 'bold', fontSize: '20px' }}>
+                                                <td style={{ padding: '18px', border: '1px solid #94a3b8' }}>Net Payable Amount</td>
+                                                <td style={{ padding: '18px', border: '1px solid #94a3b8', textAlign: 'right', color: '#16a34a' }}>₹{activeInvoice.netPayable.toFixed(2)}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '1.2rem', fontWeight: '500', position: 'relative' }}>
+                                    {activeInvoice.status === 'Paid' && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            bottom: '20px',
+                                            right: '30%',
+                                            width: '180px',
+                                            height: '180px',
+                                            transform: 'rotate(-15deg)',
+                                            opacity: 0.85,
+                                            zIndex: 10,
+                                            pointerEvents: 'none'
+                                        }}>
+                                            <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="10 5" />
+                                                <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" strokeWidth="4" />
+                                                <circle cx="100" cy="100" r="68" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="5 5" />
+                                                <path id="curveTop2" d="M 40 100 A 60 60 0 0 1 160 100" fill="transparent" />
+                                                <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                    <textPath href="#curveTop2" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                                </text>
+                                                <path id="curveBottom2" d="M 35 110 A 65 65 0 0 0 165 110" fill="transparent" />
+                                                <text fill="#10b981" fontSize="15" fontWeight="bold" letterSpacing="3">
+                                                    <textPath href="#curveBottom2" startOffset="50%" textAnchor="middle">• THANK YOU •</textPath>
+                                                </text>
+                                                <text x="100" y="118" fill="#10b981" fontSize="56" fontWeight="900" textAnchor="middle" letterSpacing="4">PAID</text>
+                                                <line x1="20" y1="80" x2="180" y2="80" stroke="#ffffff" strokeWidth="3" opacity="0.6" strokeDasharray="4 2 8 4" />
+                                                <line x1="30" y1="120" x2="170" y2="120" stroke="#ffffff" strokeWidth="4" opacity="0.5" strokeDasharray="10 5 2 8" />
+                                                <line x1="50" y1="140" x2="150" y2="140" stroke="#ffffff" strokeWidth="2" opacity="0.7" strokeDasharray="6 4" />
+                                            </svg>
+                                        </div>
+                                    )}
+                                    <div style={{ width: '250px', textAlign: 'center' }}>
+                                        <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                            {activeInvoice.owner?.name}
+                                        </div>
+                                        <div style={{ borderTop: '2px solid #64748b', paddingTop: '15px' }}>
+                                            Employer Signature
+                                        </div>
                                     </div>
-                                    <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '10px' }}>
-                                        Worker Signature
+                                    <div style={{ width: '250px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                        <div style={{ fontFamily: '"Signatie", cursive', fontSize: '28px', color: '#1e293b', lineHeight: '1', transform: 'rotate(-5deg)', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                                            {activeInvoice.labour?.name}
+                                        </div>
+                                        <div style={{ borderTop: '2px solid #64748b', paddingTop: '15px' }}>
+                                            Worker Signature
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -558,7 +634,7 @@ const Labours = () => {
                                             <label className="form-label">Designation</label>
                                         </div>
                                         <div className="form-group">
-                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" step="any" required />
+                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} onWheel={(e) => e.target.blur()} min="0" step="any" required />
                                             <label className="form-label">Daily Wage Rate (₹)</label>
                                         </div>
                                     </div>
@@ -712,7 +788,7 @@ const Labours = () => {
                                         <label className="form-label">Designation</label>
                                     </div>
                                     <div className="form-group">
-                                        <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} min="0" step="any" required />
+                                        <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} onWheel={(e) => e.target.blur()} min="0" step="any" required />
                                         <label className="form-label">Daily Wage Rate (₹)</label>
                                     </div>
                                 </div>

@@ -33,7 +33,7 @@ export const updateSalaryRecord = async (id, data) => {
     return response.data;
 };
 
-export const deleteSalaryRecord = async (id) => {
-    const response = await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
+export const deleteSalaryRecord = async (id, isGlobal = false) => {
+    const response = await axios.delete(`${API_URL}/${id}?global=${isGlobal}`, getAuthHeaders());
     return response.data;
 };

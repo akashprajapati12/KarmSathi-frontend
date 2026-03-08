@@ -125,9 +125,9 @@ const Salaries = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this salary record? (Attendance will remain intact)")) {
+        if (window.confirm("Are you sure you want to remove this salary record? (If Paid, it will simply be hidden from this global view but kept in the worker's personal history)")) {
             try {
-                await deleteSalaryRecord(id);
+                await deleteSalaryRecord(id, true);
                 setSalaries(salaries.filter(s => s._id !== id));
             } catch (err) {
                 alert("Failed to delete record.");
