@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getLabours, getDailyAttendance, markAttendance } from '../api/labour';
+import { getLabours, getDailyAttendance, markAttendance, resetAttendance } from '../api/labour';
 import { getSites } from '../api/site';
 import CustomDropdown from '../components/ui/CustomDropdown';
 import './Attendance.css';
@@ -97,6 +97,22 @@ const Attendance = () => {
         } catch (err) {
             console.error("Failed to mark attendance", err);
             alert("Error saving attendance");
+        }
+    };
+
+    const handleResetAttendance = async (labourId) => {
+        try {
+            await resetAttendance(labourId, selectedDate);
+            
+            // Update state immediately for snappy UI
+            setAttendanceRecords(prev => {
+                const newRecords = { ...prev };
+                delete newRecords[labourId];
+                return newRecords;
+            });
+        } catch (err) {
+            console.error("Failed to reset attendance", err);
+            alert("Error resetting attendance");
         }
     };
 
@@ -222,37 +238,37 @@ const Attendance = () => {
                                         <td>
                                             <div className="action-buttons">
                                                 <button
-                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Present')}
-                                                    className={`btn-mark mark-p ${status === 'Present' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
-                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Present (8 hrs)"}
-                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
+                                                    onClick={() => status === 'Present' ? handleResetAttendance(labour._id) : (!isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Present'))}
+                                                    className={`btn-mark mark-p ${status === 'Present' ? 'active' : ''} ${(isMarkedAtAnotherSite && status !== 'Present') || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={status === 'Present' ? "Click to Reset" : isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Present (8 hrs)"}
+                                                    disabled={(isMarkedAtAnotherSite && status !== 'Present') || selectedSite === 'All Sites'}
                                                 >
                                                     P
                                                 </button>
 
                                                 <button
-                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Absent')}
-                                                    className={`btn-mark mark-a ${status === 'Absent' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
-                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Absent (0 hrs)"}
-                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
+                                                    onClick={() => status === 'Absent' ? handleResetAttendance(labour._id) : (!isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Absent'))}
+                                                    className={`btn-mark mark-a ${status === 'Absent' ? 'active' : ''} ${(isMarkedAtAnotherSite && status !== 'Absent') || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={status === 'Absent' ? "Click to Reset" : isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Absent (0 hrs)"}
+                                                    disabled={(isMarkedAtAnotherSite && status !== 'Absent') || selectedSite === 'All Sites'}
                                                 >
                                                     A
                                                 </button>
 
                                                 <button
-                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Half Day')}
-                                                    className={`btn-mark mark-hd ${status === 'Half Day' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
-                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Half Day (4 hrs)"}
-                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
+                                                    onClick={() => status === 'Half Day' ? handleResetAttendance(labour._id) : (!isMarkedAtAnotherSite && selectedSite !== 'All Sites' && handleMarkAttendance(labour._id, 'Half Day'))}
+                                                    className={`btn-mark mark-hd ${status === 'Half Day' ? 'active' : ''} ${(isMarkedAtAnotherSite && status !== 'Half Day') || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={status === 'Half Day' ? "Click to Reset" : isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Half Day (4 hrs)"}
+                                                    disabled={(isMarkedAtAnotherSite && status !== 'Half Day') || selectedSite === 'All Sites'}
                                                 >
                                                     H-D
                                                 </button>
 
                                                 <button
-                                                    onClick={() => !isMarkedAtAnotherSite && selectedSite !== 'All Sites' && openOtModal(labour._id, labour.name)}
-                                                    className={`btn-mark mark-ot ${status === 'Overtime' ? 'active' : ''} ${isMarkedAtAnotherSite || selectedSite === 'All Sites' ? 'disabled' : ''}`}
-                                                    title={isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Overtime (8 + extra hrs)"}
-                                                    disabled={isMarkedAtAnotherSite || selectedSite === 'All Sites'}
+                                                    onClick={() => status === 'Overtime' ? handleResetAttendance(labour._id) : (!isMarkedAtAnotherSite && selectedSite !== 'All Sites' && openOtModal(labour._id, labour.name))}
+                                                    className={`btn-mark mark-ot ${status === 'Overtime' ? 'active' : ''} ${(isMarkedAtAnotherSite && status !== 'Overtime') || selectedSite === 'All Sites' ? 'disabled' : ''}`}
+                                                    title={status === 'Overtime' ? "Click to Reset" : isMarkedAtAnotherSite ? `Marked at ${otherSiteName}` : selectedSite === 'All Sites' ? "Select a site first" : "Overtime (8 + extra hrs)"}
+                                                    disabled={(isMarkedAtAnotherSite && status !== 'Overtime') || selectedSite === 'All Sites'}
                                                 >
                                                     OT
                                                 </button>

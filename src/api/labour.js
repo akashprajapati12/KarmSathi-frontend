@@ -68,3 +68,8 @@ export const markAttendance = async (attendanceData) => {
     const response = await authApi.post('/api/attendance', attendanceData);
     return response.data;
 };
+
+export const resetAttendance = async (labourId, dateStr) => {
+    const response = await authApi.delete(`/api/attendance/${labourId}/${dateStr}`);
+    return response.data;
+};
