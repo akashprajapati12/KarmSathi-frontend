@@ -240,17 +240,17 @@ const Salaries = () => {
                         <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '1.2rem', flexWrap: 'wrap', gap: '1rem', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>Total Salary (Basic + OT)</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>₹{salaries.reduce((acc, curr) => acc + curr.basicSalary + curr.overtimePay, 0).toFixed(2)}</div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>₹{salaries.filter(s => s.status !== 'Paid').reduce((acc, curr) => acc + curr.basicSalary + curr.overtimePay, 0).toFixed(2)}</div>
                             </div>
                             <div style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', opacity: 0.5 }}>-</div>
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>Total Advance Deducted</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#f87171' }}>₹{salaries.reduce((acc, curr) => acc + curr.advanceTaken, 0).toFixed(2)}</div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#f87171' }}>₹{salaries.filter(s => s.status !== 'Paid').reduce((acc, curr) => acc + curr.advanceTaken, 0).toFixed(2)}</div>
                             </div>
                             <div style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', opacity: 0.5 }}>=</div>
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>Net Amount to Pay</div>
-                                <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salaries.reduce((acc, curr) => acc + curr.netPayable, 0).toFixed(2)}</div>
+                                <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#4ade80' }}>₹{salaries.filter(s => s.status !== 'Paid').reduce((acc, curr) => acc + curr.netPayable, 0).toFixed(2)}</div>
                             </div>
                         </div>
 
