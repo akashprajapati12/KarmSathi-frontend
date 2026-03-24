@@ -33,7 +33,11 @@ self.addEventListener('fetch', event => {
     // Navigate requests (HTML) should be Network-First to get the latest JS bundle references
     if (event.request.mode === 'navigate' || (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'))) {
         event.respondWith(
-            fetch(event.request).catch(() => caches.match(event.request))
+            fetch(event.request).catch(() => {
+                return caches.match(event.request).then(res => {
+                    return res || caches.match('/index.html') || caches.match('/');
+                });
+            })
         );
     } else {
         // Other requests (CSS, JS, images) can be Cache-First
