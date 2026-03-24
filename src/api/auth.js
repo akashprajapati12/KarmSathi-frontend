@@ -45,3 +45,13 @@ export const deleteUserAccount = async () => {
     const response = await authApi.delete('/api/user/account');
     return response.data;
 };
+
+export const forgotPassword = async (email) => {
+    const response = await authApi.post('/api/auth/forgot-password', { email });
+    return response.data;
+};
+
+export const resetPassword = async (data) => {
+    const response = await authApi.post('/api/auth/reset-password', data);
+    return response.data;
+};

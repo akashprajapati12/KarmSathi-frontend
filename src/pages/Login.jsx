@@ -76,6 +76,8 @@ const Login = () => {
 
                 <p className="text-center text-sm" style={{ marginTop: '2rem' }}>
                     Don't have an account? <Link to="/signup">Register here</Link>
+                    <br />
+                    Forgot your password? <Link to="/forgot-password">Reset here</Link>
                 </p>
             </div>
         </div>

@@ -4,6 +4,7 @@ import { AuthContext } from './context/AuthContext';
 
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import ActiveSites from './pages/ActiveSites';
 import Labours from './pages/Labours';
@@ -48,6 +49,12 @@ const App = () => {
         <Route path="/signup" element={
           <PublicRoute>
             <Signup />
+          </PublicRoute>
+        } />
+
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPassword />
           </PublicRoute>
         } />
 
