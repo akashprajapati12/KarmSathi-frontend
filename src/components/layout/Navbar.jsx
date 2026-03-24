@@ -15,7 +15,7 @@ const Navbar = () => {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isInstallable, setIsInstallable] = useState(false);
 
-    const { user, logout, updateUserState } = useContext(AuthContext);
+    const { user, logout, updateUserState, role } = useContext(AuthContext);
     const navigate = useNavigate();
     const sidebarRef = useRef();
     const profileDropdownRef = useRef();
@@ -168,6 +168,19 @@ const Navbar = () => {
                             <div style={{ paddingBottom: '0.8rem', borderBottom: '1px solid var(--glass-border)', marginBottom: '0.5rem' }}>
                                 <p style={{ margin: 0, fontWeight: 'bold' }}>{user?.name || user?.username}</p>
                                 <p className="text-secondary" style={{ margin: 0, fontSize: '0.85rem' }}>@{user?.username}</p>
+                                <span style={{
+                                    display: 'inline-block',
+                                    marginTop: '4px',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '0.72rem',
+                                    fontWeight: '600',
+                                    background: role === 'Owner' ? 'var(--accent-primary)' : 'var(--success, #22c55e)',
+                                    color: 'white',
+                                    letterSpacing: '0.04em'
+                                }}>
+                                    {role === 'Owner' ? '👑 Owner' : '🔧 Manager'}
+                                </span>
                             </div>
                             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                 <li>
@@ -209,12 +222,15 @@ const Navbar = () => {
                             Dashboard Overview
                         </Link>
                     </li>
-                    <li>
-                        <Link to="/sites" onClick={() => setIsSidebarOpen(false)}>
-                            <span className="nav-icon">🏗️</span>
-                            Active Sites
-                        </Link>
-                    </li>
+                    {/* Sites — Owners only */}
+                    {role === 'Owner' && (
+                        <li>
+                            <Link to="/sites" onClick={() => setIsSidebarOpen(false)}>
+                                <span className="nav-icon">🏗️</span>
+                                Active Sites
+                            </Link>
+                        </li>
+                    )}
                     <li>
                         <Link to="/labours" onClick={() => setIsSidebarOpen(false)}>
                             <span className="nav-icon">👷</span>
@@ -245,6 +261,15 @@ const Navbar = () => {
                             Advances
                         </Link>
                     </li>
+                    {/* Managers page — Owners only */}
+                    {role === 'Owner' && (
+                        <li>
+                            <Link to="/managers" onClick={() => setIsSidebarOpen(false)}>
+                                <span className="nav-icon">👥</span>
+                                Managers
+                            </Link>
+                        </li>
+                    )}
                 </ul>
 
                 <div className="sidebar-footer">

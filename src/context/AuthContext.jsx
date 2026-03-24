@@ -54,8 +54,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
     };
 
+    // Derived role — components can simply destructure `role` from context
+    const role = user?.role || null;
+
     return (
-        <AuthContext.Provider value={{ user, token, register, login, logout, loading, updateUserState }}>
+        <AuthContext.Provider value={{ user, token, role, register, login, logout, loading, updateUserState }}>
             {!loading && children}
         </AuthContext.Provider>
     );

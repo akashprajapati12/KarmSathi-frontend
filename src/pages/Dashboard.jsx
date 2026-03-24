@@ -46,7 +46,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+        <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
             {/* Dashboard Header */}
             <div style={{ marginBottom: '2.5rem', marginTop: '1rem' }}>

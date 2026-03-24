@@ -11,6 +11,7 @@ import Attendance from './pages/Attendance';
 import Leaves from './pages/Leaves';
 import Salaries from './pages/Salaries';
 import Advances from './pages/Advances';
+import Managers from './pages/Managers';
 
 import ProtectedLayout from './components/layout/ProtectedLayout';
 
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/leaves" element={<Leaves />} />
           <Route path="/salaries" element={<Salaries />} />
           <Route path="/advances" element={<Advances />} />
+          <Route path="/managers" element={<Managers />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

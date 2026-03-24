@@ -169,7 +169,7 @@ const Salaries = () => {
 
     return (
         <>
-            <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+            <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
@@ -421,11 +421,11 @@ const Salaries = () => {
             {/* Calculate Modal */}
             {
                 isCalcModalOpen && createPortal(
-                    <div className="modal-overlay">
-                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '400px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div className="modal-overlay fullscreen">
+                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '500px', background: 'var(--bg-secondary)', padding: '2.5rem', margin: '0 auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
                                 <h3 style={{ margin: 0 }}>Bulk Calculate Salaries</h3>
-                                <button onClick={() => setIsCalcModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                                <button onClick={() => setIsCalcModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                             </div>
 
                             <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>

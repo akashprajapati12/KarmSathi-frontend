@@ -306,7 +306,7 @@ const Labours = () => {
 
     if (currentView === 'details' && selectedLabour) {
         return (
-            <div className="container animate-fade-in" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
+            <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
                 <button className="btn" style={{ background: 'transparent', color: 'var(--text-secondary)', padding: 0, marginBottom: '1.5rem', width: 'auto' }} onClick={() => { setCurrentView('list'); setIsCalendarModalOpen(false); }}>
                     ← Back to Directory
                 </button>
@@ -547,110 +547,27 @@ const Labours = () => {
 
                 {/* Calendar Popup Modal */}
                 {isCalendarModalOpen && createPortal(
-                    <div className="modal-overlay" style={{ zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)' }}>
-                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '800px', background: 'var(--bg-secondary)', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div className="modal-overlay fullscreen">
+                        <div className="glass-panel animate-fade-in" style={{ background: 'var(--bg-secondary)', padding: '2rem', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '1.5rem' }}>Site Attendance Calendar</h3>
-                                    <p style={{ color: 'var(--accent-primary)', margin: '0.5rem 0 0 0', fontWeight: 'bold' }}>{calendarModalSite.name}</p>
+                                    <h2 style={{ margin: 0, fontSize: '1.8rem' }}>Site Attendance Calendar</h2>
+                                    <p style={{ color: 'var(--accent-primary)', margin: '0.2rem 0 0 0', fontWeight: 'bold' }}>📍 {calendarModalSite.name}</p>
                                 </div>
-                                <button onClick={() => setIsCalendarModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: '1' }}>&times;</button>
+                                <button onClick={() => setIsCalendarModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '3rem', cursor: 'pointer', lineHeight: '1' }}>&times;</button>
                             </div>
 
-                            <LabourCalendar labourId={selectedLabour._id} highlightedSiteId={calendarModalSite.id} />
+                            <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+                                <LabourCalendar labourId={selectedLabour._id} highlightedSiteId={calendarModalSite.id} />
+                            </div>
 
-                            <div style={{ marginTop: '2rem', textAlign: 'right' }}>
-                                <button className="btn btn-primary" style={{ width: 'auto' }} onClick={() => setIsCalendarModalOpen(false)}>Close Calendar</button>
+                            <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+                                <button className="btn btn-primary" style={{ width: 'auto', padding: '1rem 3rem' }} onClick={() => setIsCalendarModalOpen(false)}>Close Calendar</button>
                             </div>
                         </div>
                     </div>,
                     document.body
                 )}
-
-                {/* Edit Labour Modal Form (Details View) */}
-                {
-                    isModalOpen && createPortal(
-                        <div className="modal-overlay">
-                            <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                    <h3 style={{ margin: 0 }}>{editingLabourId ? 'Edit Labour Details' : 'Register New Labour'}</h3>
-                                    <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
-                                </div>
-
-                                <form onSubmit={handleCreateOrUpdateLabour}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        <div className="form-group">
-                                            <input type="text" name="name" className="form-input" placeholder="Full Name" value={newLabour.name} onChange={handleInputChange} required />
-                                            <label className="form-label">Full Name</label>
-                                        </div>
-                                        <div className="form-group">
-                                            <input type="tel" name="mobileNumber" className="form-input" placeholder="Mobile Number" value={newLabour.mobileNumber} onChange={handleInputChange} required />
-                                            <label className="form-label">Mobile Number</label>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <input type="text" name="address" className="form-input" placeholder="Residential Address" value={newLabour.address} onChange={handleInputChange} required />
-                                        <label className="form-label">Address</label>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <div style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Assign to Sites (Select multiple):</div>
-                                        <div style={{
-                                            display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                                            gap: '0.8rem',
-                                            background: 'rgba(255,255,255,0.03)',
-                                            padding: '1rem',
-                                            borderRadius: '8px',
-                                            border: '1px solid var(--glass-border)'
-                                        }}>
-                                            {sites.map(s => (
-                                                <label key={s._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={newLabour.sites.includes(s._id)}
-                                                        onChange={(e) => {
-                                                            const newSites = e.target.checked
-                                                                ? [...newLabour.sites, s._id]
-                                                                : newLabour.sites.filter(id => id !== s._id);
-                                                            setNewLabour({ ...newLabour, sites: newSites });
-                                                        }}
-                                                    />
-                                                    <span style={{ fontSize: '0.9rem' }}>{s.name}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <input type="text" name="aadharNumber" className="form-input" placeholder="Aadhar Card Number" value={newLabour.aadharNumber} onChange={handleInputChange} required />
-                                        <label className="form-label">Aadhar Number</label>
-                                    </div>
-
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        <div className="form-group">
-                                            <input type="text" name="designation" className="form-input" placeholder="e.g., Mason, Helper, Painter" value={newLabour.designation} onChange={handleInputChange} required />
-                                            <label className="form-label">Designation</label>
-                                        </div>
-                                        <div className="form-group">
-                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} onWheel={(e) => e.target.blur()} min="0" step="any" required />
-                                            <label className="form-label">Daily Wage Rate (₹)</label>
-                                        </div>
-                                    </div>
-
-                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-                                        <button type="button" className="btn btn-danger" onClick={handleCloseModal} disabled={isCreating}>Cancel</button>
-                                        <button type="submit" className="btn btn-primary" disabled={isCreating}>
-                                            {isCreating ? 'Saving...' : (editingLabourId ? 'Save Changes' : 'Complete Registration')}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>,
-                        document.body
-                    )
-                }
 
             </div>
         );
@@ -659,7 +576,7 @@ const Labours = () => {
     // LIST VIEW
     return (
         <>
-            <div className="container animate-fade-in" style={{ paddingBottom: '4rem', position: 'relative' }}>
+            <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem', position: 'relative' }}>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
@@ -721,85 +638,102 @@ const Labours = () => {
 
             </div>
 
-            {/* Add/Edit Labour Modal Form */}
+            {/* Global Add/Edit Labour Modal Form */}
             {
                 isModalOpen && createPortal(
-                    <div className="modal-overlay">
-                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h3 style={{ margin: 0 }}>{editingLabourId ? 'Edit Labour Details' : 'Register New Labour'}</h3>
-                                <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                    <div className="modal-overlay fullscreen">
+                        <div className="glass-panel animate-fade-in" style={{ 
+                            background: 'var(--bg-secondary)', 
+                            padding: '2.5rem', 
+                            maxWidth: '750px',
+                            width: '100%',
+                            margin: '0 auto'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                                <h2 style={{ margin: 0 }}>{editingLabourId ? 'Edit Labour Details' : 'Register New Worker'}</h2>
+                                <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                             </div>
 
-                            <form onSubmit={handleCreateOrUpdateLabour}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <form onSubmit={handleCreateOrUpdateLabour}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <input type="text" name="name" className="form-input" placeholder="Full Name" value={newLabour.name} onChange={handleInputChange} required />
+                                            <label className="form-label">Full Name</label>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <input type="tel" name="mobileNumber" className="form-input" placeholder="Mobile Number" value={newLabour.mobileNumber} onChange={handleInputChange} required />
+                                            <label className="form-label">Mobile Number</label>
+                                        </div>
+                                    </div>
+
                                     <div className="form-group">
-                                        <input type="text" name="name" className="form-input" placeholder="Full Name" value={newLabour.name} onChange={handleInputChange} required />
-                                        <label className="form-label">Full Name</label>
+                                        <input type="text" name="address" className="form-input" placeholder="Residential Address" value={newLabour.address} onChange={handleInputChange} required />
+                                        <label className="form-label">Address</label>
                                     </div>
+
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: '500' }}>Assign to Work Sites:</p>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: '10px',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            padding: '1.5rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid var(--glass-border)'
+                                        }}>
+                                            {sites.map(s => (
+                                                <label key={s._id} style={{ 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '8px', 
+                                                    padding: '8px 16px', 
+                                                    borderRadius: '25px', 
+                                                    cursor: 'pointer',
+                                                    border: `1px solid ${newLabour.sites.includes(s._id) ? 'var(--accent-primary)' : 'var(--glass-border)'}`,
+                                                    background: newLabour.sites.includes(s._id) ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                                                    transition: 'all 0.2s'
+                                                }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        style={{ display: 'none' }}
+                                                        checked={newLabour.sites.includes(s._id)}
+                                                        onChange={(e) => {
+                                                            const newSites = e.target.checked
+                                                                ? [...newLabour.sites, s._id]
+                                                                : newLabour.sites.filter(id => id !== s._id);
+                                                            setNewLabour({ ...newLabour, sites: newSites });
+                                                        }}
+                                                    />
+                                                    🏗️ {s.name}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className="form-group">
-                                        <input type="tel" name="mobileNumber" className="form-input" placeholder="Mobile Number" value={newLabour.mobileNumber} onChange={handleInputChange} required />
-                                        <label className="form-label">Mobile Number</label>
+                                        <input type="text" name="aadharNumber" className="form-input" placeholder="Aadhar Card Number" value={newLabour.aadharNumber} onChange={handleInputChange} required />
+                                        <label className="form-label">Aadhar Number</label>
                                     </div>
-                                </div>
 
-                                <div className="form-group">
-                                    <input type="text" name="address" className="form-input" placeholder="Residential Address" value={newLabour.address} onChange={handleInputChange} required />
-                                    <label className="form-label">Address</label>
-                                </div>
-
-                                <div className="form-group">
-                                    <div style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Assign to Sites (Select multiple):</div>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                                        gap: '0.8rem',
-                                        background: 'rgba(255,255,255,0.03)',
-                                        padding: '1rem',
-                                        borderRadius: '8px',
-                                        border: '1px solid var(--glass-border)'
-                                    }}>
-                                        {sites.map(s => (
-                                            <label key={s._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={newLabour.sites.includes(s._id)}
-                                                    onChange={(e) => {
-                                                        const newSites = e.target.checked
-                                                            ? [...newLabour.sites, s._id]
-                                                            : newLabour.sites.filter(id => id !== s._id);
-                                                        setNewLabour({ ...newLabour, sites: newSites });
-                                                    }}
-                                                />
-                                                <span style={{ fontSize: '0.9rem' }}>{s.name}</span>
-                                            </label>
-                                        ))}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <input type="text" name="designation" className="form-input" placeholder="e.g., Mason, Helper, Painter" value={newLabour.designation} onChange={handleInputChange} required />
+                                            <label className="form-label">Designation / Role</label>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} onWheel={(e) => e.target.blur()} min="0" step="any" required />
+                                            <label className="form-label">Daily Wage Rate (₹)</label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="form-group">
-                                    <input type="text" name="aadharNumber" className="form-input" placeholder="Aadhar Card Number" value={newLabour.aadharNumber} onChange={handleInputChange} required />
-                                    <label className="form-label">Aadhar Number</label>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div className="form-group">
-                                        <input type="text" name="designation" className="form-input" placeholder="e.g., Mason, Helper, Painter" value={newLabour.designation} onChange={handleInputChange} required />
-                                        <label className="form-label">Designation</label>
+                                    <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem' }}>
+                                        <button type="button" className="btn btn-danger" style={{ flex: 1 }} onClick={handleCloseModal} disabled={isCreating}>Cancel</button>
+                                        <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={isCreating}>
+                                            {isCreating ? 'Saving...' : (editingLabourId ? 'Update Worker' : 'Complete Registration')}
+                                        </button>
                                     </div>
-                                    <div className="form-group">
-                                        <input type="number" name="dailyRate" className="form-input" placeholder="Daily Wage (₹)" value={newLabour.dailyRate} onChange={handleInputChange} onWheel={(e) => e.target.blur()} min="0" step="any" required />
-                                        <label className="form-label">Daily Wage Rate (₹)</label>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-                                    <button type="button" className="btn btn-danger" onClick={handleCloseModal} disabled={isCreating}>Cancel</button>
-                                    <button type="submit" className="btn btn-primary" disabled={isCreating}>
-                                        {isCreating ? 'Saving...' : (editingLabourId ? 'Save Changes' : 'Complete Registration')}
-                                    </button>
-                                </div>
-                            </form>
+                                </form>
                         </div>
                     </div>,
                     document.body

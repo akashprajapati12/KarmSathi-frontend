@@ -130,7 +130,7 @@ const Attendance = () => {
     };
 
     return (
-        <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+        <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
             {/* Header & Date Selector */}
             <div className="attendance-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -284,32 +284,42 @@ const Attendance = () => {
 
             {/* Overtime Modal */}
             {otModal.isOpen && (
-                <div className="modal-overlay" style={{ zIndex: 3000 }}>
-                    <div className="glass-panel animate-fade-in" style={{ width: '90%', maxWidth: '400px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                            <h3 style={{ margin: 0 }}>{otModal.labourName}</h3>
-                            <button onClick={() => setOtModal({ isOpen: false, labourId: null, labourName: '', extraHours: '' })} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
-                        </div>
+                <div className="modal-overlay fullscreen">
+                    <div className="glass-panel animate-fade-in" style={{ 
+                        background: 'var(--bg-secondary)', 
+                        padding: '2.5rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto'
+                    }}>
+                        <div style={{ width: '100%', maxWidth: '450px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                                <h2 style={{ margin: 0 }}>{otModal.labourName}</h2>
+                                <button onClick={() => setOtModal({ isOpen: false, labourId: null, labourName: '', extraHours: '' })} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+                            </div>
 
-                        <p className="text-secondary" style={{ marginBottom: '1.5rem' }}>Add overtime hours</p>
+                            <p className="text-secondary" style={{ marginBottom: '2rem', fontSize: '1.1rem' }}>Enter overtime hours worked:</p>
 
-                        <div className="form-group">
-                            <input
-                                type="number"
-                                className="form-input"
-                                placeholder="e.g. 2"
-                                min="0.5"
-                                step="0.5"
-                                value={otModal.extraHours}
-                                onChange={(e) => setOtModal({ ...otModal, extraHours: e.target.value })}
-                                autoFocus
-                            />
-                            <label className="form-label">Extra Hours Worked</label>
-                        </div>
+                            <div className="form-group">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="e.g. 2"
+                                    min="0.5"
+                                    step="0.5"
+                                    value={otModal.extraHours}
+                                    onChange={(e) => setOtModal({ ...otModal, extraHours: e.target.value })}
+                                    autoFocus
+                                />
+                                <label className="form-label">Extra Hours Worked</label>
+                            </div>
 
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                            <button className="btn btn-danger" onClick={() => setOtModal({ isOpen: false, labourId: null, labourName: '', extraHours: '' })}>Cancel</button>
-                            <button className="btn btn-primary" onClick={submitOtModal}>Save Overtime</button>
+                            <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem' }}>
+                                <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => setOtModal({ isOpen: false, labourId: null, labourName: '', extraHours: '' })}>Cancel</button>
+                                <button className="btn btn-primary" style={{ flex: 2 }} onClick={submitOtModal}>Save Overtime</button>
+                            </div>
                         </div>
                     </div>
                 </div>

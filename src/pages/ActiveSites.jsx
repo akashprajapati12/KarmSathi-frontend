@@ -141,7 +141,7 @@ const ActiveSites = () => {
     };
 
     return (
-        <div className="container animate-fade-in" style={{ paddingBottom: '4rem', position: 'relative' }}>
+        <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem', position: 'relative' }}>
 
             {/* Header Area */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -251,18 +251,12 @@ const ActiveSites = () => {
             )}
 
             {/* Add Site Modal */}
-            {/* Add Site Modal */}
             {isModalOpen && createPortal(
-                <div className="modal-overlay">
-                    <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '500px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h3 style={{ margin: 0 }}>Add New Site</h3>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}
-                            >
-                                &times;
-                            </button>
+                <div className="modal-overlay fullscreen">
+                    <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2.5rem', margin: '0 auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                            <h2 style={{ margin: 0 }}>Create New Site</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                         </div>
 
                         <form onSubmit={handleCreateSite}>
@@ -302,10 +296,11 @@ const ActiveSites = () => {
                                 <label className="form-label">Project Start Date</label>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2.5rem' }}>
                                 <button
                                     type="button"
                                     className="btn btn-danger"
+                                    style={{ flex: 1 }}
                                     onClick={() => setIsModalOpen(false)}
                                     disabled={isCreating}
                                 >
@@ -314,6 +309,7 @@ const ActiveSites = () => {
                                 <button
                                     type="submit"
                                     className="btn btn-primary"
+                                    style={{ flex: 2 }}
                                     disabled={isCreating}
                                 >
                                     {isCreating ? 'Creating...' : 'Create Site'}
@@ -327,53 +323,60 @@ const ActiveSites = () => {
 
             {/* Site Details & Photos Modal */}
             {selectedSite && createPortal(
-                <div className="modal-overlay" style={{ zIndex: 10000 }}>
-                    <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '900px', height: '90vh', overflowY: 'auto', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
+                <div className="modal-overlay fullscreen">
+                    <div className="glass-panel animate-fade-in" style={{ 
+                        background: 'var(--bg-secondary)', 
+                        padding: '2.5rem', 
+                        overflowY: 'auto',
+                        maxWidth: '1200px',
+                        width: '95%',
+                        margin: '0 auto'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1.5rem' }}>
                             <div>
-                                <h2 style={{ margin: 0, color: 'var(--accent-primary)' }}>{selectedSite.name}</h2>
-                                <p className="text-secondary" style={{ margin: '0.2rem 0 0.5rem 0' }}>{selectedSite.address}</p>
+                                <h1 style={{ margin: 0, color: 'var(--accent-primary)', fontSize: '2.2rem' }}>{selectedSite.name}</h1>
+                                <p className="text-secondary" style={{ margin: '0.5rem 0 1rem 0', fontSize: '1.1rem' }}>{selectedSite.address}</p>
 
                                 {!isEditingStart ? (
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        <strong>Project Started:</strong> {new Date(selectedSite.startDate || selectedSite.createdAt).toLocaleDateString()}
+                                    <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <strong>Started:</strong> {new Date(selectedSite.startDate || selectedSite.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                         <button onClick={() => {
                                             setIsEditingStart(true);
                                             setEditStartDate(selectedSite.startDate ? new Date(selectedSite.startDate).toISOString().split('T')[0] : new Date(selectedSite.createdAt).toISOString().split('T')[0]);
-                                        }} style={{ marginLeft: '10px', background: 'transparent', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}>Edit Date</button>
+                                        }} style={{ background: 'transparent', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', fontSize: '0.9rem', textDecoration: 'underline' }}>Edit</button>
                                     </div>
                                 ) : (
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <strong>Project Started:</strong>
-                                        <input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }} />
-                                        <button className="btn btn-primary" onClick={handleSaveStartDate} style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Save</button>
-                                        <button className="btn" onClick={() => setIsEditingStart(false)} style={{ padding: '4px 12px', fontSize: '0.8rem', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)' }}>Cancel</button>
+                                    <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <strong>Started:</strong>
+                                        <input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }} />
+                                        <button className="btn btn-primary" onClick={handleSaveStartDate} style={{ padding: '8px 16px', fontSize: '0.9rem', width: 'auto' }}>Save</button>
+                                        <button className="btn" onClick={() => setIsEditingStart(false)} style={{ padding: '8px 16px', fontSize: '0.9rem', width: 'auto', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)' }}>Cancel</button>
                                     </div>
                                 )}
                             </div>
-                            <button onClick={() => { setSelectedSite(null); setIsEditingStart(false); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2rem', cursor: 'pointer', alignSelf: 'flex-start' }}>&times;</button>
+                            <button onClick={() => { setSelectedSite(null); setIsEditingStart(false); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', alignSelf: 'flex-start', lineHeight: 1 }}>&times;</button>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '3rem', maxWidth: '1400px', margin: '0 auto' }}>
 
                             {/* Workers List Section */}
                             <div>
-                                <h3>Assigned Workers</h3>
+                                <h2 style={{ fontSize: '1.6rem', marginBottom: '1.5rem' }}>Assigned Workers</h2>
                                 {isDetailsLoading ? (
                                     <p className="text-secondary">Loading workers...</p>
                                 ) : siteWorkers.length === 0 ? (
                                     <p className="text-secondary">No workers currently assigned to this site.</p>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                                         {siteWorkers.map(worker => (
-                                            <div key={worker._id} style={{ background: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                    <span style={{ fontWeight: 'bold' }}>{worker.name}</span>
-                                                    <span style={{ color: 'var(--accent-primary)', fontSize: '0.9rem' }}>₹{worker.dailyRate}/day</span>
+                                            <div key={worker._id} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                                                    <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{worker.name}</span>
+                                                    <span style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', fontWeight: '600' }}>₹{worker.dailyRate}/day</span>
                                                 </div>
-                                                <div className="text-secondary" style={{ fontSize: '0.85rem' }}>
-                                                    Role: {worker.designation} <br />
-                                                    Contact: {worker.mobileNumber}
+                                                <div className="text-secondary" style={{ fontSize: '1rem' }}>
+                                                    <span style={{ display: 'block', marginBottom: '0.4rem' }}>🏗️ Role: {worker.designation}</span>
+                                                    <span>📱 Contact: {worker.mobileNumber}</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -383,44 +386,48 @@ const ActiveSites = () => {
 
                             {/* Photos Section */}
                             <div>
-                                <h3>Site Photos</h3>
-                                <form onSubmit={handlePhotoUpload} style={{ background: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)', marginBottom: '1.5rem' }}>
-                                    <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Upload New Photo</h4>
+                                <h2 style={{ fontSize: '1.6rem', marginBottom: '1.5rem' }}>Site Photos</h2>
+                                <form onSubmit={handlePhotoUpload} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem' }}>
+                                    <h4 style={{ margin: '0 0 1.2rem 0', fontSize: '1.1rem' }}>Upload New Progress Photo</h4>
 
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setUploadFile(e.target.files[0])}
-                                        style={{ marginBottom: '1rem', width: '100%' }}
-                                    />
+                                    <div style={{ marginBottom: '1.2rem' }}>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setUploadFile(e.target.files[0])}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
 
-                                    <input
-                                        type="text"
-                                        placeholder="Brief description (e.g. Foundation poured)"
-                                        className="form-input"
-                                        value={uploadDescription}
-                                        onChange={(e) => setUploadDescription(e.target.value)}
-                                        style={{ marginBottom: '1rem' }}
-                                    />
+                                    <div className="form-group">
+                                        <input
+                                            type="text"
+                                            placeholder="Description (e.g. Roof work started)"
+                                            className="form-input"
+                                            value={uploadDescription}
+                                            onChange={(e) => setUploadDescription(e.target.value)}
+                                        />
+                                        <label className="form-label">Description</label>
+                                    </div>
 
-                                    <button type="submit" className="btn btn-primary" disabled={isUploading || !uploadFile} style={{ width: '100%', padding: '0.5rem' }}>
+                                    <button type="submit" className="btn btn-primary" disabled={isUploading || !uploadFile} style={{ width: '100%', marginTop: '0.5rem' }}>
                                         {isUploading ? 'Uploading...' : 'Upload Photo'}
                                     </button>
                                 </form>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', maxHeight: '400px', overflowY: 'auto' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1.2rem' }}>
                                     {selectedSite.photos?.length === 0 ? (
-                                        <p className="text-secondary" style={{ gridColumn: 'span 2' }}>No photos uploaded yet.</p>
+                                        <p className="text-secondary">No photos uploaded yet.</p>
                                     ) : (
                                         selectedSite.photos?.map((photo, index) => (
-                                            <div key={index} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-                                                <img src={`http://localhost:5000${photo.url}`} alt={photo.description} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+                                            <div key={index} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--glass-border)', aspectRatio: '1/1' }}>
+                                                <img src={`http://localhost:5000${photo.url}`} alt={photo.description} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                                                 {photo.description && (
-                                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.7)', padding: '0.4rem', fontSize: '0.75rem', color: 'white' }}>
+                                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.7)', padding: '0.6rem', fontSize: '0.85rem', color: 'white' }}>
                                                         {photo.description}
                                                     </div>
                                                 )}
-                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.5)', padding: '0.2rem 0.5rem', fontSize: '0.7rem', color: 'white', borderBottomLeftRadius: '4px' }}>
+                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.5)', padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: 'white', borderBottomLeftRadius: '8px' }}>
                                                     {new Date(photo.uploadedAt).toLocaleDateString()}
                                                 </div>
                                             </div>
@@ -430,18 +437,18 @@ const ActiveSites = () => {
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
-                            <button className="btn" style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--glass-border)', width: '100%' }} onClick={() => setSelectedSite(null)}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border)', maxWidth: '1400px', margin: '4rem auto 0' }}>
+                            <button className="btn" style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--glass-border)', flex: '1 1 200px' }} onClick={() => setSelectedSite(null)}>
                                 Close Dashboard
                             </button>
 
                             {selectedSite.status !== 'Completed' && (
-                                <button className="btn btn-primary" style={{ background: '#16a34a', borderColor: '#16a34a', width: '100%' }} onClick={() => handleCompleteSite(selectedSite._id)}>
+                                <button className="btn btn-success" style={{ flex: '1 1 200px' }} onClick={() => handleCompleteSite(selectedSite._id)}>
                                     Mark Site Completed
                                 </button>
                             )}
 
-                            <button className="btn btn-danger" style={{ width: '100%' }} onClick={() => handleDeleteSite(selectedSite._id)}>
+                            <button className="btn btn-danger" style={{ flex: '1 1 200px', border: '1px solid var(--error)' }} onClick={() => handleDeleteSite(selectedSite._id)}>
                                 Delete Site Permanently
                             </button>
                         </div>

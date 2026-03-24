@@ -122,7 +122,7 @@ const Advances = () => {
 
     return (
         <>
-            <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+            <div className="page-container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
@@ -201,11 +201,11 @@ const Advances = () => {
 
                 {/* Worker Advance Slip Modal */}
                 {selectedWorkerAdvances && selectedWorkerAdvances.records.length > 0 && createPortal(
-                    <div className="modal-overlay">
-                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h3 style={{ margin: 0, fontSize: '1.8rem' }}>{selectedWorkerAdvances.labour?.name}'s Advance Slip</h3>
-                                <button onClick={() => setSelectedWorkerAdvances(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                    <div className="modal-overlay fullscreen">
+                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '650px', background: 'var(--bg-secondary)', padding: '2.5rem', margin: '0 auto', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                                <h2 style={{ margin: 0 }}>{selectedWorkerAdvances.labour?.name}'s Advance Slip</h2>
+                                <button onClick={() => setSelectedWorkerAdvances(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -258,11 +258,11 @@ const Advances = () => {
 
                 {/* Record Advance Modal */}
                 {isApplyModalOpen && createPortal(
-                    <div className="modal-overlay">
-                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2rem', margin: '5vh auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h3 style={{ margin: 0 }}>Record Worker Advance</h3>
-                                <button onClick={() => setIsApplyModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                    <div className="modal-overlay fullscreen">
+                        <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)', padding: '2.5rem', margin: '0 auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                                <h2 style={{ margin: 0 }}>Record Worker Advance</h2>
+                                <button onClick={() => setIsApplyModalOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '2.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                             </div>
 
                             <form onSubmit={handleRecordAdvance}>
